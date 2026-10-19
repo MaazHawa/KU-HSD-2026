@@ -1,8 +1,8 @@
 const PRODUCTS = [
-  { id: "sword", name: "Sword", icon: "⚔️", price: 120, hours: 6, desc: "A balanced steel blade with a leather-wrapped grip.", materials: { iron: 8, coal: 5, leather: 1 } },
-  { id: "plate", name: "Plate Armor", icon: "🛡️", price: 450, hours: 24, desc: "A full harness of fitted steel plates.", materials: { iron: 40, coal: 20, leather: 6 } },
-  { id: "chain", name: "Chain Mail", icon: "⛓️", price: 260, hours: 16, desc: "Thousands of riveted rings, light and flexible.", materials: { iron: 20, coal: 10, leather: 2 } },
-  { id: "pot", name: "Cooking Pot", icon: "🍲", price: 30, hours: 2, desc: "A sturdy cast pot that will outlive the kitchen.", materials: { iron: 4, coal: 2, leather: 0 } }
+  { id: "sword", name: "Sword", icon: "⚔️", price: 100, hours: 2, desc: "add desc", materials: { iron: 8, coal: 5, leather: 1 } },
+  { id: "plate", name: "Plate Armor", icon: "🛡️", price: 200, hours: 4, desc: "add desc", materials: { iron: 40, coal: 20, leather: 6 } },
+  { id: "chain", name: "Chain Mail", icon: "⛓️", price: 400, hours: 6, desc: "add desc", materials: { iron: 20, coal: 10, leather: 2 } },
+  { id: "pot", name: "Cooking Pot", icon: "🍲", price: 800, hours: 8, desc: "add desc", materials: { iron: 4, coal: 2, leather: 0 } }
 ];
 
 const STATUSES = ["Queued", "In Progress", "Completed"];
