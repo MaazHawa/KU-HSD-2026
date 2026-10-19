@@ -42,3 +42,47 @@ document.getElementById("product-list").addEventListener("click", e => {
 });
 
 renderProducts();
+
+function renderQueueTab() {
+  const queueHtml = `
+    <div class="card">
+      <h3>Check Your Position</h3>
+      <div class="row">
+        <input id="queue-input" placeholder="Order ID (e.g., GF-1001)" autocomplete="off">
+        <button id="queue-btn">Check</button>
+      </div>
+      <div id="queue-result" style="margin-top: 15px; font-weight: bold;"></div>
+    </div>
+  `;
+  document.getElementById("view-queue").innerHTML = queueHtml;
+}
+
+document.body.addEventListener("click", e => {
+  if (e.target.id === "queue-btn") {
+    const orderId = document.getElementById("queue-input").value.trim();
+    const resultDiv = document.getElementById("queue-result");
+    if (!orderId) {
+      resultDiv.textContent = "Please enter an Order ID.";
+      return;
+    }
+    const position = getOrderPosition(orderId);
+    if (position === null) {
+      resultDiv.textContent = "Order isn't found or already finished.";
+    } else {
+      resultDiv.textContent = `You are #${position} in line.`;
+    }
+  }
+
+  if (e.target.tagName === "BUTTON" && e.target.closest("nav")) {
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active")); 
+    e.target.classList.add("active");
+    if (e.target.id === "nav-queue") {
+      document.getElementById("view-queue").classList.add("active");
+    } else if (e.target.id === "nav-shop") {
+      document.getElementById("view-shop").classList.add("active"); 
+    }
+  }
+});
+
+renderQueueTab();

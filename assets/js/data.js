@@ -40,3 +40,19 @@ function placeOrder(customer, productId, qty) {
   save(KEY_NEXT, next + 1);
   return { ok: true, order };
 }
+
+function getOrderPosition(orderID) {
+  const order = getOrders()
+  const activeOrders = orders.filter(o => o.status !== "Completed");
+  activeOrders.sort((a, b) => a.createdAt - b.createdAt);
+  const index = activeOrders.findIndex(o => o.id === orderId);
+  return index === -1 ? null : index + 1;
+}
+
+function getOrderPosition(orderId) {
+  const orders = getOrders(); 
+  const activeOrders = orders.filter(o => o.status !== "Completed");
+  activeOrders.sort((a, b) => a.createdAt - b.createdAt);
+  const index = activeOrders.findIndex(o => o.id === orderId);
+  return index === -1 ? null : index + 1;
+}
