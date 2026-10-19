@@ -2,7 +2,7 @@ const PRODUCTS = [
   { id: "sword", name: "Sword", icon: "⚔️", price: 100, hours: 2, desc: "add desc", materials: { iron: 8, coal: 5, leather: 1 } },
   { id: "plate", name: "Plate Armor", icon: "🛡️", price: 200, hours: 4, desc: "add desc", materials: { iron: 40, coal: 20, leather: 6 } },
   { id: "chain", name: "Chain Mail", icon: "⛓️", price: 400, hours: 6, desc: "add desc", materials: { iron: 20, coal: 10, leather: 2 } },
-  { id: "pot", name: "Cooking Pot", icon: "🍲", price: 800, hours: 8, desc: "add desc", materials: { iron: 4, coal: 2, leather: 0 } }
+  { id: "pot", name: "Cooking Pot", icon: "switch", price: 800, hours: 8, desc: "add desc", materials: { iron: 4, coal: 2, leather: 0 } }
 ];
 
 const STATUSES = ["Queued", "In Progress", "Completed"];
