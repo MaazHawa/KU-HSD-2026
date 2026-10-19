@@ -34,3 +34,4 @@ nav button.active { background:var(--bronze); }
 #toast { position:fixed; left:50%; bottom:80px; transform:translateX(-50%); background:var(--ink); color:#fff; padding:10px 16px; border-radius:8px; opacity:0; pointer-events:none; transition:opacity .25s; max-width:90%; text-align:center; }
 #toast.show { opacity:1; }
 .muted { opacity:.75; font-size:.9rem; }
+

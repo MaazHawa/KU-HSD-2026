@@ -57,15 +57,48 @@ function renderQueueTab() {
   document.getElementById("view-queue").innerHTML = queueHtml;
 }
 
+renderQueueTab();
+
+function renderWorkspaceTab() {
+  const workspaceHtml = `
+    <!-- Login Screen -->
+    <div class="card" id="workspace-login">
+      <h3>Restricted Area</h3>
+      <p>Enter password to access the workspace.</p>
+      <div class="row">
+        <input type="password" id="workspace-password" placeholder="Password" autocomplete="off">
+        <button id="workspace-unlock-btn">Unlock</button>
+      </div>
+      <div id="workspace-error" class="low-text" style="margin-top: 10px;"></div>
+    </div>
+
+    <!-- Workspace -->
+    <div id="workspace-content" style="display: none;">
+      <h2>Workspace</h2>
+      <div class="card">
+        <h3>Access Granted</h3>
+        <p>we need to work on this lol</p>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById("view-workspace").innerHTML = workspaceHtml;
+}
+
+renderWorkspaceTab();
+
 document.body.addEventListener("click", e => {
   if (e.target.id === "queue-btn") {
     const orderId = document.getElementById("queue-input").value.trim();
     const resultDiv = document.getElementById("queue-result");
+    
     if (!orderId) {
       resultDiv.textContent = "Please enter an Order ID.";
       return;
     }
+
     const position = getOrderPosition(orderId);
+    
     if (position === null) {
       resultDiv.textContent = "Order isn't found or already finished.";
     } else {
@@ -73,16 +106,32 @@ document.body.addEventListener("click", e => {
     }
   }
 
+  if (e.target.id === "workspace-unlock-btn") {
+    const passInput = document.getElementById("workspace-password");
+    const errorDiv = document.getElementById("workspace-error");
+    
+    if (passInput.value === "gunter123") {
+      document.getElementById("workspace-login").style.display = "none";
+      document.getElementById("workspace-content").style.display = "block";
+      passInput.value = ""; 
+    } else {
+      errorDiv.textContent = "Incorrect password.";
+    }
+  }
+
   if (e.target.tagName === "BUTTON" && e.target.closest("nav")) {
     document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".view").forEach(v => v.classList.remove("active")); 
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    
     e.target.classList.add("active");
+    
     if (e.target.id === "nav-queue") {
       document.getElementById("view-queue").classList.add("active");
     } else if (e.target.id === "nav-shop") {
       document.getElementById("view-shop").classList.add("active"); 
+    } else if (e.target.id === "nav-workspace") {
+      document.getElementById("view-workspace").classList.add("active"); 
     }
   }
 });
 
-renderQueueTab();
