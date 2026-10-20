@@ -16,7 +16,7 @@ function load(key, fallback) {
   } catch (e) {
     return fallback;
   }
-}
+} //test
 
 function save(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
