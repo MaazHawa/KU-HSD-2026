@@ -11,10 +11,14 @@ function toast(message) {
   setTimeout(() => el.classList.remove("show"), 2600);
 }
 
+let PRODUCTS = [];
+
+function findProduct(id) { return PRODUCTS.find(p => p.id === id); }
+
 async function renderProducts() {
   const res = await fetch("/api/products");
-  const products = await res.json();
-  document.getElementById("product-list").innerHTML = products.map(p => `
+  PRODUCTS = await res.json();
+  document.getElementById("product-list").innerHTML = PRODUCTS.map(p => `
     <div class="card" data-id="${p.id}">
       <span class="icon">${p.icon}</span>
       <h3>${p.name}</h3>
@@ -53,6 +57,8 @@ document.getElementById("product-list").addEventListener("click", async e => {
 
 renderProducts();
 
+let workspacePassword = "";
+
 async function renderWorkspaceQueue(pass) {
   const res = await fetch("/api/orders/incomplete", {
     headers : { "x-password": pass }
@@ -87,8 +93,6 @@ async function renderWorkspaceQueue(pass) {
 document.body.addEventListener("click", async e => {
   if (e.target.id === "queue-btn") {
     const orderId = document.getElementById("queue-input").value.trim();
-    const res = await fetch(`/api/orders/${orderId}`);
-    const data = await res.json();
     const resultDiv = document.getElementById("queue-result");
     
     if (!orderId) {
@@ -100,7 +104,7 @@ document.body.addEventListener("click", async e => {
     const podata = await posres.json();
     const position = podata.position;
     
-    if (position == -1) {
+    if (position === null) {
       resultDiv.textContent = "Order isn't found or already finished.";
     } else {
       resultDiv.textContent = `You are #${position} in line.`;
@@ -114,8 +118,9 @@ document.body.addEventListener("click", async e => {
     if (passInput.value === "gunter123") {
       document.getElementById("workspace-login").style.display = "none";
       document.getElementById("workspace-content").style.display = "block";
-      passInput.value = ""; 
-      renderWorkspaceQueue(passInput);
+      workspacePassword = passInput.value;
+      passInput.value = "";
+      renderWorkspaceQueue(workspacePassword);
     } else {
       errorDiv.textContent = "Incorrect password.";
     }
@@ -136,19 +141,22 @@ document.body.addEventListener("click", async e => {
   }
 
   if (e.target.id === "workspace-refresh-btn") {
-    renderWorkspaceQueue();
+    await renderWorkspaceQueue(workspacePassword);
     toast("Queue refreshed!");
   }
 
   if (e.target.classList.contains("complete-btn")) {
     const orderId = e.target.dataset.id;
-    const orders = getOrders();
-    const orderIndex = orders.findIndex(o => o.id === orderId);
-    if (orderIndex !== -1) {
-      orders[orderIndex].status = "Completed";
-            save(KEY_ORDERS, orders);
-            renderWorkspaceQueue();
+    const res = await fetch(`/api/orders/${orderId}/complete`, {
+      method: "POST",
+      headers: { "x-password": workspacePassword }
+    });
+    const data = await res.json();
+    if (data.ok) {
+      await renderWorkspaceQueue(workspacePassword);
       toast(orderId + " marked as completed!");
+    } else {
+      toast(data.error);
     }
   }
 });
