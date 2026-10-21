@@ -48,4 +48,4 @@ db.js        SQLite database access
 
 - Eric: backend, sqlite db
 - Maaz: developed the Shop and Mini-Game system, as well as the materials system in the Workshop and connection from the Mini-Game to the Workshop.
-- Aliakbar
+- Aliakbar: developed the queue and workshop system, as well as the wait time system. Password locked the workspace
