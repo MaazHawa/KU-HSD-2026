@@ -1,4 +1,3 @@
-
 function esc(text) {
   const div = document.createElement("div");
   div.textContent = text;
@@ -22,7 +21,7 @@ function renderProducts() {
       </div>
       <p class="muted">Materials per item: ${Object.entries(p.materials)
         .filter(([material, amount]) => amount > 0)
-        .map(([material, amount]) => `${amount} ${material}`)
+        .map(([material, amount]) => `${amount}${material}`)
         .join(", ")}</p>
       <div class="row">
         <input class="order-name" placeholder="Your name" autocomplete="off">
@@ -71,7 +70,7 @@ function renderWorkspaceQueue() {
 
     return `
       <li style="padding: 10px 0; border-bottom: 1px solid var(--bronze);">
-        <strong>#${index + 1} - ${esc(order.id)}</strong>:
+         <strong>#${index + 1} ${esc(order.id)}</strong>:
         ${esc(order.customer)}
         <div class="muted">${order.qty}x ${esc(productName)}</div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
@@ -111,13 +110,21 @@ function renderOrderTracking(orderId) {
   const product = findProduct(order.productId);
   const productName = product ? product.name : "Unknown Item";
   const position = getOrderPosition(order.id);
+  
+  // Calculate the wait time using the function from data.js
+  const waitTime = getEstimatedWaitTime(order.id);
 
   if (order.status === "Completed") {
     resultDiv.textContent =
       `${order.id}: ${order.qty}x ${productName}. Status: Completed!`;
   } else {
-    resultDiv.textContent =
-      `${order.id}: ${order.qty}x ${productName}. Status: ${order.status}. Queue position: #${position}.`;
+    // Show position and estimated wait time
+    resultDiv.innerHTML = `
+      ${order.id}: ${order.qty}x ${productName}. Status: ${order.status}. Queue position: #${position}.<br>
+      <span style="color: var(--warn); font-size: 0.9em; display: inline-block; margin-top: 4px;">
+        Estimated wait: ${waitTime} hours
+      </span>
+    `;
   }
 }
 
@@ -347,5 +354,5 @@ function resetMine() {
 
 // Initial page setup.
 renderProducts();
-renderInventory();
+renderInventory(); 
 renderMine();

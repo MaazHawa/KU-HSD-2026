@@ -130,3 +130,27 @@ function getOrderPosition(orderId) {
 
   return index === -1 ? null : index + 1;
 }
+
+function getEstimatedWaitTime(orderId) {
+  const orders = getOrders();
+  
+  const activeOrders = orders.filter(o => o.status !== "Completed");
+  activeOrders.sort((a, b) => a.createdAt - b.createdAt);
+  
+  const targetIndex = activeOrders.findIndex(o => o.id === orderId);
+  if (targetIndex === -1) return null;
+
+  let totalHours = 0;
+  
+  // Loop through all orders ahead of them, plus their own
+  for (let i = 0; i <= targetIndex; i++) {
+    const order = activeOrders[i];
+    const product = findProduct(order.productId);
+    
+    if (product) {
+      totalHours += product.hours * order.qty;
+    }
+  }
+  
+  return totalHours;
+}
