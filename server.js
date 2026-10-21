@@ -46,7 +46,7 @@ app.get("/api/orders/:id/position", (req, res) => {
   const activeOrders = orders.filter(o => o.status !== "Completed");
   activeOrders.sort((a, b) => a.createdAt - b.createdAt);
   const index = activeOrders.findIndex(o => o.id === orderId);
-  res.json({ ok: true, position: index === -1 ? null : index + 1 });
+  res.json({ ok: true, position: index });
 });
 
 // get orderby id
