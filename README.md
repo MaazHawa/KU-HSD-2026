@@ -46,6 +46,6 @@ db.js        SQLite database access
 
 ## Team Contributions
 
-- Eric: backend, sqlite db
+- Eric: developed whole backend and sqlite db, connected the frontend to backend, then adds background to UI.
 - Maaz: developed the Shop and Mini-Game system, as well as the materials system in the Workshop and connection from the Mini-Game to the Workshop.
 - Aliakbar: developed the queue and workshop system, as well as the wait time system. Password locked the workspace
