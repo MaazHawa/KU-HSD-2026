@@ -1,15 +1,18 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Global document metadata and mobile viewport settings -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#171713">
   <meta name="description" content="Order handcrafted medieval equipment from Gunter's Forge.">
   <title>Gunter's Forge | Medieval Blacksmith</title>
+  
+  <!-- Primary stylesheet link -->
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
+  <!-- Website header -->
   <header class="site-header">
     <div class="brand">
       <div class="brand-mark" aria-hidden="true">⚒</div>
@@ -25,12 +28,13 @@
     </div>
   </header>
 
+  <!-- Main content area containing all swappable tab views -->
   <main>
-    <!-- SHOP -->
+    
+    <!-- VIEW 1: SHOP -->
     <section id="view-shop" class="view active">
       <div class="hero">
         <div class="hero-content">
-          
           </div>
         </div>
         <div class="hero-emblem" aria-hidden="true">
@@ -54,6 +58,7 @@
         <div class="loading-card">Loading the forge catalogue...</div>
       </div>
 
+      <!-- Tells user to save order ID -->
       <div class="info-banner">
         <span class="info-icon">✦</span>
         <div>
@@ -66,7 +71,8 @@
       </div>
     </section>
 
-    <!-- CUSTOMER ORDER TRACKING -->
+    <!-- VIEW 2: CUSTOMER ORDER TRACKING -->
+    <!-- Allows customers to input their order ID and check their queue position/status -->
     <section id="view-queue" class="view">
       <div class="page-intro">
         <p class="eyebrow">CUSTOMER SERVICES</p>
@@ -75,6 +81,7 @@
       </div>
 
       <div class="tracking-layout">
+        <!-- Input form for order tracking -->
         <div class="card tracking-card">
           <div class="card-icon">⌕</div>
           <h3>Find Your Order</h3>
@@ -87,9 +94,11 @@
             <button id="queue-btn" class="button button-primary">Track order</button>
           </div>
 
+          <!-- Container for tracking results output -->
           <div id="queue-result" class="queue-result" aria-live="polite"></div>
         </div>
 
+        <!-- Text area explaining the order process -->
         <aside class="card tracking-help">
           <p class="eyebrow">HOW IT WORKS</p>
           <div class="step">
@@ -117,7 +126,8 @@
       </div>
     </section>
 
-    <!-- WORKSPACE -->
+    <!-- VIEW 3: WORKSPACE -->
+    <!-- Password-protected area for fulfilling orders and managing inventory -->
     <section id="view-workspace" class="view">
       <div class="page-intro">
         <p class="eyebrow">GUNTER'S PRIVATE WORKSHOP</p>
@@ -125,6 +135,7 @@
         <p>Manage orders, monitor materials, and keep the forge running.</p>
       </div>
 
+      <!-- Password  interface -->
       <div class="card login-card" id="workspace-login">
         <div class="login-symbol">⚒</div>
         <p class="eyebrow">AUTHORIZED PERSONNEL ONLY</p>
@@ -140,6 +151,7 @@
         <div id="workspace-error" class="low-text" role="alert"></div>
       </div>
 
+      <!-- Hidden dashboard -->
       <div id="workspace-content" style="display: none;">
         <div class="workspace-toolbar">
           <div>
@@ -149,6 +161,7 @@
           <button id="workspace-refresh-btn" class="button button-secondary">↻ Refresh data</button>
         </div>
 
+        <!-- Top row displaying current resource levels -->
         <div class="dashboard-grid">
           <article class="metric-card">
             <span class="metric-label">IRON STOCK</span>
@@ -173,6 +186,7 @@
         </div>
 
         <div class="workspace-grid">
+          <!-- Inventory restock controls -->
           <section class="card">
             <div class="card-heading">
               <div>
@@ -208,6 +222,7 @@
             </div>
           </section>
 
+          <!-- Active orders queue -->
           <section class="card">
             <div class="card-heading">
               <div>
@@ -225,7 +240,8 @@
       </div>
     </section>
 
-    <!-- MINE -->
+    <!-- VIEW 4: MINE  -->
+    <!-- Interactive section where users click rocks to generate resources -->
     <section id="view-mine" class="view">
       <div class="page-intro">
         <p class="eyebrow">GATHER YOUR RESOURCES</p>
@@ -234,6 +250,7 @@
       </div>
 
       <div class="mine-layout">
+        <!-- Main interactive mining area -->
         <section class="card mine-main">
           <div class="mine-topline">
             <div>
@@ -246,6 +263,8 @@
           <p id="mine-message" class="mine-message" aria-live="polite">
             Choose a rock to start mining.
           </p>
+          
+          <!-- Container where ui.js injects clickable rock elements -->
           <div id="mine-rocks" class="mine-rocks">
             <div class="loading-card">Preparing the mine...</div>
           </div>
@@ -256,6 +275,7 @@
           </div>
         </section>
 
+        <!-- Bar tracking current run performance and all-time high score -->
         <aside class="mine-sidebar">
           <div class="card">
             <p class="eyebrow">THIS RUN</p>
@@ -286,7 +306,8 @@
     </section>
   </main>
 
-  <!-- MOBILE-FRIENDLY NAVIGATION -->
+  <!-- Navigation Bar -->
+  <!-- Anchored to the bottom of the viewport; controls .view.active switching -->
   <nav class="bottom-nav" aria-label="Main navigation">
     <button id="nav-shop" class="active">
       <span class="nav-icon">⌂</span>
@@ -306,8 +327,10 @@
     </button>
   </nav>
 
+  <!-- Global container for toast notifications triggered via JS -->
   <div id="toast" role="status" aria-live="polite"></div>
 
+  <!-- Application logic and data management scripts -->
   <script src="assets/js/data.js"></script>
   <script src="assets/js/ui.js"></script>
 </body>
