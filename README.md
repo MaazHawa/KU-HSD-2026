@@ -49,3 +49,6 @@ db.js        SQLite database access
 - Eric: developed whole backend and sqlite db, connected the frontend to backend, then adds background to UI.
 - Maaz: developed the Shop and Mini-Game system, as well as the materials system in the Workshop and connection from the Mini-Game to the Workshop.
 - Aliakbar: developed the queue and workshop system, as well as the wait time system. Password locked the workspace
+
+## AI Use
+We used AI tools to support parts of the development process. We used AI to help implement our design ideas in index.html and styles.css, specifically when creating that medieval look and feel. Since some team members were relatively new to JavaScript and HTML, we also used AI for guidance with JavaScript and CSS, helping us understand how to implement features and style the website. Our team developed the project’s ideas and functionality, and we used AI to learn/develop our project.
