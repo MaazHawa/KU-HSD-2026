@@ -61,7 +61,7 @@ renderQueueTab();
 
 function renderWorkspaceTab() {
   const workspaceHtml = `
-    <!-- Login Screen -->
+    
     <div class="card" id="workspace-login">
       <h3>Restricted Area</h3>
       <p>Enter password to access the workspace.</p>
@@ -72,12 +72,13 @@ function renderWorkspaceTab() {
       <div id="workspace-error" class="low-text" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- Workspace -->
+    
     <div id="workspace-content" style="display: none;">
       <h2>Workspace</h2>
       <div class="card">
-        <h3>Access Granted</h3>
-        <p>we need to work on this lol</p>
+        <h3>Active Orders Queue</h3>
+        <button id="workspace-refresh-btn" style="min-height: 32px; padding: 4px 12px;">Refresh</button>
+        <ul id="queue-list" style="list-style: none; padding: 0; margin: 0;"></ul>
       </div>
     </div>
   `;
@@ -86,6 +87,31 @@ function renderWorkspaceTab() {
 }
 
 renderWorkspaceTab();
+
+function renderWorkspaceQueue() {
+  const orders = getOrders(); 
+  const activeOrders = orders.filter(o => o.status !== "Completed");
+  activeOrders.sort((a, b) => a.createdAt - b.createdAt);
+  const listHtml = activeOrders.map((o, index) => {
+    const product = findProduct(o.productId);
+    const productName = product ? product.name : "Unknown Item";
+    const badgeClass = o.status.replace(" ", "-"); 
+    return `
+      <li style="padding: 8px 0; border-bottom: 1px solid var(--bronze);">
+        <strong>#${index + 1} - ${o.id}</strong>: ${o.customer} 
+        <span class="muted">ordered ${o.qty}x ${productName}</span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span class="badge ${badgeClass}">${o.status}</span>
+          <button class="complete-btn" data-id="${o.id}" style="min-height: 30px; padding: 4px 10px; font-size: 0.9rem;">Done</button>
+        </div>
+      </li>
+    `;
+  }).join("");
+
+  
+  document.getElementById("queue-list").innerHTML = listHtml || "<li>No active orders currently in queue.</li>";
+}
 
 document.body.addEventListener("click", e => {
   if (e.target.id === "queue-btn") {
@@ -114,6 +140,7 @@ document.body.addEventListener("click", e => {
       document.getElementById("workspace-login").style.display = "none";
       document.getElementById("workspace-content").style.display = "block";
       passInput.value = ""; 
+      renderWorkspaceQueue();
     } else {
       errorDiv.textContent = "Incorrect password.";
     }
@@ -122,15 +149,31 @@ document.body.addEventListener("click", e => {
   if (e.target.tagName === "BUTTON" && e.target.closest("nav")) {
     document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-    
     e.target.classList.add("active");
-    
+
     if (e.target.id === "nav-queue") {
       document.getElementById("view-queue").classList.add("active");
     } else if (e.target.id === "nav-shop") {
       document.getElementById("view-shop").classList.add("active"); 
     } else if (e.target.id === "nav-workspace") {
       document.getElementById("view-workspace").classList.add("active"); 
+    }
+  }
+
+  if (e.target.id === "workspace-refresh-btn") {
+    renderWorkspaceQueue();
+    toast("Queue refreshed!");
+  }
+
+  if (e.target.classList.contains("complete-btn")) {
+    const orderId = e.target.dataset.id;
+    const orders = getOrders();
+    const orderIndex = orders.findIndex(o => o.id === orderId);
+    if (orderIndex !== -1) {
+      orders[orderIndex].status = "Completed";
+            save(KEY_ORDERS, orders);
+            renderWorkspaceQueue();
+      toast(orderId + " marked as completed!");
     }
   }
 });
