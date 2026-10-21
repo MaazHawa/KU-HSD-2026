@@ -43,51 +43,6 @@ document.getElementById("product-list").addEventListener("click", e => {
 
 renderProducts();
 
-function renderQueueTab() {
-  const queueHtml = `
-    <div class="card">
-      <h3>Check Your Position</h3>
-      <div class="row">
-        <input id="queue-input" placeholder="Order ID (e.g., GF-1001)" autocomplete="off">
-        <button id="queue-btn">Check</button>
-      </div>
-      <div id="queue-result" style="margin-top: 15px; font-weight: bold;"></div>
-    </div>
-  `;
-  document.getElementById("view-queue").innerHTML = queueHtml;
-}
-
-renderQueueTab();
-
-function renderWorkspaceTab() {
-  const workspaceHtml = `
-    
-    <div class="card" id="workspace-login">
-      <h3>Restricted Area</h3>
-      <p>Enter password to access the workspace.</p>
-      <div class="row">
-        <input type="password" id="workspace-password" placeholder="Password" autocomplete="off">
-        <button id="workspace-unlock-btn">Unlock</button>
-      </div>
-      <div id="workspace-error" class="low-text" style="margin-top: 10px;"></div>
-    </div>
-
-    
-    <div id="workspace-content" style="display: none;">
-      <h2>Workspace</h2>
-      <div class="card">
-        <h3>Active Orders Queue</h3>
-        <button id="workspace-refresh-btn" style="min-height: 32px; padding: 4px 12px;">Refresh</button>
-        <ul id="queue-list" style="list-style: none; padding: 0; margin: 0;"></ul>
-      </div>
-    </div>
-  `;
-  
-  document.getElementById("view-workspace").innerHTML = workspaceHtml;
-}
-
-renderWorkspaceTab();
-
 function renderWorkspaceQueue() {
   const orders = getOrders(); 
   const activeOrders = orders.filter(o => o.status !== "Completed");

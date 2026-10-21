@@ -18,9 +18,37 @@
       <div id="product-list"></div>
     </section>
 
-    <section id="view-queue" class="view"></section>
+    <section id="view-queue" class="view">
+      <div class="card">
+        <h3>Check Your Position</h3>
+        <div class="row">
+          <input id="queue-input" placeholder="Order ID (e.g., GF-1001)" autocomplete="off">
+          <button id="queue-btn">Check</button>
+        </div>
+        <div id="queue-result" style="margin-top: 15px; font-weight: bold;"></div>
+      </div>
+    </section>
 
-    <section id="view-workspace" class="view"></section>
+    <section id="view-workspace" class="view">
+      <div class="card" id="workspace-login">
+        <h3>Restricted Area</h3>
+        <p>Enter password to access the workspace.</p>
+        <div class="row">
+          <input type="password" id="workspace-password" placeholder="Password" autocomplete="off">
+          <button id="workspace-unlock-btn">Unlock</button>
+        </div>
+        <div id="workspace-error" class="low-text" style="margin-top: 10px;"></div>
+      </div>
+
+      <div id="workspace-content" style="display: none;">
+        <h2>Workspace</h2>
+        <div class="card">
+          <h3>Active Orders Queue</h3>
+          <button id="workspace-refresh-btn" style="min-height: 32px; padding: 4px 12px;">Refresh</button>
+          <ul id="queue-list" style="list-style: none; padding: 0; margin: 0;"></ul>
+        </div>
+      </div>
+    </section>
   </main>
 
   <nav>
