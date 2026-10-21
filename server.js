@@ -50,6 +50,6 @@ app.get("/api/orders/:id/position", (req, res) => {
 });
 
 // get all orders
-function getOrders() {
-  return db.getAllOrders().map(o => ({ ...o, id: "GF-" + (1000 + o.id) }));
-}
+app.get("/api/orders", (req, res) => {
+  res.json(db.getAllOrders().map(o => ({ ...o, id: "GF-" + (1000 + o.id) })));
+});

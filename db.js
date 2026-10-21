@@ -36,4 +36,4 @@ function getOrderById(id) {
   return db.prepare("SELECT * FROM orders WHERE id = ?").get(id);
 }
 
-module.exports = { addOrder, getAllOrders, markCompleted ,getOrderById};
+module.exports = { addOrder, getAllOrders, markCompleted ,getOrderById, getIncompleteOrders};
