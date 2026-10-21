@@ -77,6 +77,7 @@ function renderWorkspaceTab() {
       <h2>Workspace</h2>
       <div class="card">
         <h3>Active Orders Queue</h3>
+        <button id="workspace-refresh-btn" style="min-height: 32px; padding: 4px 12px;">Refresh</button>
         <ul id="queue-list" style="list-style: none; padding: 0; margin: 0;"></ul>
       </div>
     </div>
@@ -153,6 +154,11 @@ document.body.addEventListener("click", e => {
     } else if (e.target.id === "nav-workspace") {
       document.getElementById("view-workspace").classList.add("active"); 
     }
+  }
+
+  if (e.target.id === "workspace-refresh-btn") {
+    renderWorkspaceQueue();
+    toast("Queue refreshed!");
   }
 });
 
