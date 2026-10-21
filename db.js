@@ -12,12 +12,17 @@ db.exec(`CREATE TABLE IF NOT EXISTS orders (
 )`);
 
 // add
-const result = db.prepare("INSERT INTO orders (customer, productId, qty, createdAt) VALUES (?, ?, ?, ?)")
-  .run(name, productId, amount, Date.now());
-result.lastInsertRowid;   // 新订单的编号，自动 +1
+function addOrder(customer, productId, qty) {
+  return db.prepare("INSERT INTO orders (customer, productId, qty, createdAt) VALUES (?, ?, ?, ?)")
+    .run(customer, productId, qty, Date.now()).lastInsertRowid;
+}
 
-// inquire all
-db.prepare("SELECT * FROM orders ORDER BY createdAt").all();
+// get all
+function getAllOrders() {
+  return db.prepare("SELECT * FROM orders ORDER BY createdAt").all();
+}
 
-// mark finished
-db.prepare("UPDATE orders SET status = ? WHERE id = ?").run("Completed", id);
+// mark done
+function markCompleted(id) {
+  db.prepare("UPDATE orders SET status = 'Completed' WHERE id = ?").run(id);
+}
