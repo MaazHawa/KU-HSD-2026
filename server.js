@@ -50,6 +50,26 @@ app.get("/api/orders/:id/position", (req, res) => {
 });
 
 // get all orders
-app.get("/api/orders", (req, res) => {
+app.get("/api/orders/all", (req, res) => {
   res.json(db.getAllOrders().map(o => ({ ...o, id: "GF-" + (1000 + o.id) })));
+});
+
+// get non completed
+app.get("/api/orders", (req, res) => {
+  if (req.get("x-password") !== "gunter123") return res.status(401).json({ ok: false, error: "Incorrect password." });
+  const orders = db.getAllOrders().map(o => ({ ...o, id: "GF-" + (1000 + o.id) }));
+  const activeOrders = orders.filter(o => o.status !== "Completed");
+  activeOrders.sort((a, b) => a.createdAt - b.createdAt);
+  res.json({ ok: true, orders: activeOrders });
+});
+
+// change status
+app.post("/api/orders/:id/complete", (req, res) => {
+  if (req.get("x-password") !== "gunter123") return res.status(401).json({ ok: false, error: "Incorrect password." });
+  const orderId = req.params.id;
+  const id = Number(orderId.replace("GF-", "")) - 1000;
+  const order = db.getOrderById(id);
+  if (!order) return res.status(404).json({ ok: false, error: "Order not found." });
+  db.markCompleted(id);
+  res.json({ ok: true });
 });
