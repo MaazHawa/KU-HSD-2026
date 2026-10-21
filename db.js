@@ -22,6 +22,7 @@ function getAllOrders() {
   return db.prepare("SELECT * FROM orders ORDER BY createdAt").all();
 }
 
+// get imcomlete orders
 function getIncompleteOrders() {
   return db.prepare("SELECT * FROM orders WHERE status != 'Completed' ORDER BY createdAt").all();
 }
@@ -31,4 +32,8 @@ function markCompleted(id) {
   db.prepare("UPDATE orders SET status = 'Completed' WHERE id = ?").run(id);
 }
 
-module.exports = { addOrder, getAllOrders, markCompleted };
+function getOrderById(id) {
+  return db.prepare("SELECT * FROM orders WHERE id = ?").get(id);
+}
+
+module.exports = { addOrder, getAllOrders, markCompleted ,getOrderById};
