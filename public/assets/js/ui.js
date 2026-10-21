@@ -33,8 +33,8 @@ function renderProducts() {
   `).join("");
 }
 
-function renderInventory() {
-  const inventory = getInventory();
+async function renderInventory() {
+  const inventory = await getInventory();
 
   document.getElementById("inventory-iron").textContent = inventory.iron;
   document.getElementById("inventory-coal").textContent = inventory.coal;
@@ -51,8 +51,8 @@ function renderInventory() {
     warnings.length ? warnings.join(" ") : "Stock levels look good.";
 }
 
-function renderWorkspaceQueue() {
-  const activeOrders = getOrders()
+async function renderWorkspaceQueue() {
+  const activeOrders = (await getOrders())
     .filter(order => order.status !== "Completed")
     .sort((a, b) => a.createdAt - b.createdAt);
 
@@ -90,7 +90,7 @@ function renderWorkspaceQueue() {
     listHtml || "<li>No active orders currently in queue.</li>";
 }
 
-function renderOrderTracking(orderId) {
+async function renderOrderTracking(orderId) {
   const resultDiv = document.getElementById("queue-result");
   const normalizedId = orderId.trim().toUpperCase();
 
@@ -99,9 +99,7 @@ function renderOrderTracking(orderId) {
     return;
   }
 
-  const order = getOrders().find(
-    item => item.id.toUpperCase() === normalizedId
-  );
+  const order = await getOrder(normalizedId);
 
   if (!order) {
     resultDiv.textContent = "Order not found. Check the ID and try again.";
@@ -110,7 +108,7 @@ function renderOrderTracking(orderId) {
 
   const product = findProduct(order.productId);
   const productName = product ? product.name : "Unknown Item";
-  const position = getOrderPosition(order.id);
+  const position = await getOrderPosition(order.id);
 
   if (order.status === "Completed") {
     resultDiv.textContent =
@@ -121,9 +119,9 @@ function renderOrderTracking(orderId) {
   }
 }
 
-function refreshWorkspace() {
-  renderWorkspaceQueue();
-  renderInventory();
+async function refreshWorkspace() {
+  await renderWorkspaceQueue();
+  await renderInventory();
 }
 
 function showView(viewId, button) {
@@ -138,20 +136,20 @@ function showView(viewId, button) {
   button.classList.add("active");
   document.getElementById(viewId).classList.add("active");
 
-  if (viewId === "view-workspace") {
+  if (viewId === "view-workspace" && workspacePassword) {
     refreshWorkspace();
   }
 }
 
 // Places an order from the Shop.
-document.getElementById("product-list").addEventListener("click", event => {
+document.getElementById("product-list").addEventListener("click", async event => {
   const button = event.target.closest(".order-btn");
   if (!button) return;
 
   const card = button.closest(".card");
   button.disabled = true;
 
-  const result = placeOrder(
+  const result = await placeOrder(
     card.querySelector(".order-name").value,
     card.dataset.id,
     card.querySelector(".order-qty").value
@@ -163,7 +161,7 @@ document.getElementById("product-list").addEventListener("click", event => {
     toast(`Order ${result.order.id} placed! Save your order ID.`);
     card.querySelector(".order-name").value = "";
     card.querySelector(".order-qty").value = "1";
-    renderInventory();
+    if (workspacePassword) renderInventory();
   }
 
   setTimeout(() => {
@@ -172,7 +170,7 @@ document.getElementById("product-list").addEventListener("click", event => {
 });
 
 // Handles navigation and other application buttons.
-document.body.addEventListener("click", event => {
+document.body.addEventListener("click", async event => {
   const navButton = event.target.closest("nav button");
 
   if (navButton) {
@@ -190,7 +188,7 @@ document.body.addEventListener("click", event => {
   }
 
   if (event.target.closest("#queue-btn")) {
-    renderOrderTracking(document.getElementById("queue-input").value);
+    await renderOrderTracking(document.getElementById("queue-input").value);
     return;
   }
 
@@ -198,12 +196,12 @@ document.body.addEventListener("click", event => {
     const password = document.getElementById("workspace-password");
     const error = document.getElementById("workspace-error");
 
-    if (password.value === "gunter123") {
+    if (await checkPassword(password.value)) {
       document.getElementById("workspace-login").style.display = "none";
       document.getElementById("workspace-content").style.display = "block";
       password.value = "";
       error.textContent = "";
-      refreshWorkspace();
+      await refreshWorkspace();
       toast("Workspace unlocked.");
     } else {
       error.textContent = "Incorrect password.";
@@ -212,14 +210,18 @@ document.body.addEventListener("click", event => {
   }
 
   if (event.target.closest("#workspace-refresh-btn")) {
-    refreshWorkspace();
+    await refreshWorkspace();
     toast("Inventory and queue refreshed.");
     return;
   }
 
   if (event.target.closest("#restock-leather-btn")) {
-    addResources({ leather: 10 });
-    renderInventory();
+    const result = await addResources({ leather: 10 });
+    if (!result.ok) {
+      toast(result.error);
+      return;
+    }
+    await renderInventory();
     toast("Leather delivery recorded: +10.");
     return;
   }
@@ -229,27 +231,27 @@ document.body.addEventListener("click", event => {
   if (advanceButton) {
     const orderId = advanceButton.dataset.id;
     const nextStatus = advanceButton.dataset.next;
-    const orders = getOrders();
-    const order = orders.find(item => item.id === orderId);
-
-    if (order && STATUSES.includes(nextStatus)) {
-      order.status = nextStatus;
-      save(KEY_ORDERS, orders);
-      refreshWorkspace();
+    if (STATUSES.includes(nextStatus)) {
+      const result = await setOrderStatus(orderId, nextStatus);
+      if (!result.ok) {
+        toast(result.error);
+        return;
+      }
+      await refreshWorkspace();
       toast(`${orderId}: ${nextStatus}.`);
     }
     return;
   }
 
   if (event.target.closest("#mine-reset")) {
-    resetMine();
+    await resetMine();
     return;
   }
 
   const rock = event.target.closest(".mine-rock");
 
-  if (rock && !mineOver) {
-    mineRock(rock.dataset.ore);
+  if (rock && mineRun && !mineRun.over) {
+    await mineRock(Number(rock.dataset.index));
   }
 });
 
@@ -257,37 +259,26 @@ document.body.addEventListener("click", event => {
 // Gunter's Mine minigame
 // ------------------------------
 
-let mineEnergy = 12;
-let mineResources = { iron: 0, coal: 0, gold: 0 };
-let mineScore = 0;
-let mineOver = false;
-let mineBest = Number(localStorage.getItem("gf_mine_best")) || 0;
+let mineRun = null;
+let mineBusy = false;
 
 function updateMineStats() {
-  document.getElementById("mine-energy").textContent = mineEnergy;
-  document.getElementById("mine-iron").textContent = mineResources.iron;
-  document.getElementById("mine-coal").textContent = mineResources.coal;
-  document.getElementById("mine-gold").textContent = mineResources.gold;
-  document.getElementById("mine-best").textContent = mineBest;
+  document.getElementById("mine-energy").textContent = mineRun.energy;
+  document.getElementById("mine-iron").textContent = mineRun.resources.iron;
+  document.getElementById("mine-coal").textContent = mineRun.resources.coal;
+  document.getElementById("mine-gold").textContent = mineRun.resources.gold;
+  document.getElementById("mine-best").textContent = mineRun.best;
 }
 
 function renderMine() {
   const rocks = document.getElementById("mine-rocks");
 
-  const types = [
-    { name: "Iron Ore", icon: "🪨", type: "iron" },
-    { name: "Coal", icon: "⚫", type: "coal" },
-    { name: "Gold Ore", icon: "🟡", type: "gold" }
-  ];
-
-  rocks.innerHTML = Array.from({ length: 6 }, () => {
-    const rock = types[Math.floor(Math.random() * types.length)];
-
+  rocks.innerHTML = mineRun.rocks.map((rock, index) => {
     return `
-      <button class="mine-rock" data-ore="${rock.type}"
-        ${mineOver ? "disabled" : ""}>
+      <button class="mine-rock" data-index="${index}"
+        ${mineRun.over ? "disabled" : ""}>
         <span>${rock.icon}</span><br>
-        <small>${rock.name}</small>
+        <small>${esc(rock.name)}</small>
       </button>
     `;
   }).join("");
@@ -295,49 +286,40 @@ function renderMine() {
   updateMineStats();
 }
 
-function mineRock(ore) {
-  if (mineEnergy <= 0 || mineOver) return;
+async function mineRock(index) {
+  if (mineBusy) return;
 
-  mineEnergy--;
+  mineBusy = true;
+  const result = await digRock(mineRun.runId, index);
+  mineBusy = false;
 
-  if (ore === "iron") {
-    mineResources.iron++;
-    mineScore += 10;
-  } else if (ore === "coal") {
-    mineResources.coal++;
-    mineScore += 5;
-  } else if (ore === "gold") {
-    mineResources.gold++;
-    mineScore += 25;
+  if (!result.ok) {
+    document.getElementById("mine-message").textContent = result.error;
+    return;
   }
 
-  if (mineScore > mineBest) {
-    mineBest = mineScore;
-    localStorage.setItem("gf_mine_best", mineBest);
-  }
+  mineRun = result.run;
 
-  // Transfers mined resources into the workshop inventory.
-  if (ore === "iron") addResources({ iron: 1 });
-  if (ore === "coal") addResources({ coal: 1 });
-  if (ore === "gold") addResources({ gold: 1 });
-
-  if (mineEnergy === 0) {
-    mineOver = true;
+  if (mineRun.over) {
     document.getElementById("mine-message").textContent =
-      `Run finished! Score: ${mineScore}. Your mined resources were added to inventory.`;
+      `Run finished! Score: ${mineRun.score}. Your mined resources were added to inventory.`;
   } else {
     document.getElementById("mine-message").textContent =
-      `You collected ${ore}! Your resources were added to the workshop.`;
+      `You collected ${result.ore}! Your resources were added to the workshop.`;
   }
 
   renderMine();
 }
 
-function resetMine() {
-  mineEnergy = 12;
-  mineResources = { iron: 0, coal: 0, gold: 0 };
-  mineScore = 0;
-  mineOver = false;
+async function resetMine() {
+  const result = await startMineRun();
+
+  if (!result.ok) {
+    document.getElementById("mine-message").textContent = result.error;
+    return;
+  }
+
+  mineRun = result.run;
 
   document.getElementById("mine-message").textContent =
     "Choose a rock to start mining!";
@@ -346,6 +328,5 @@ function resetMine() {
 }
 
 // Initial page setup.
-renderProducts();
-renderInventory();
-renderMine();
+loadProducts().then(renderProducts);
+resetMine();

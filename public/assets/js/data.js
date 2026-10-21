@@ -1,132 +1,94 @@
-
-const PRODUCTS = [
-  { id: "sword", name: "Sword", icon: "⚔️", price: 100, hours: 2, materials: { iron: 8, coal: 5, leather: 1 } },
-  { id: "plate", name: "Plate Armor", icon: "🛡️", price: 200, hours: 4, materials: { iron: 40, coal: 20, leather: 6 } },
-  { id: "chain", name: "Chain Mail", icon: "⛓️", price: 400, hours: 6, materials: { iron: 20, coal: 10, leather: 2 } },
-  { id: "pot", name: "Cooking Pot", icon: "🍲", price: 800, hours: 8, materials: { iron: 4, coal: 2, leather: 0 } }
-];
+let PRODUCTS = [];
 
 const STATUSES = ["Queued", "In Progress", "Completed"];
 
-const KEY_ORDERS = "gf_orders";
-const KEY_NEXT = "gf_next_id";
-const KEY_INVENTORY = "gf_inventory";
+let workspacePassword = "";
 
-const STARTING_INVENTORY = {
-  iron: 120,
-  coal: 60,
-  leather: 20,
-  gold: 0
-};
-
-function load(key, fallback) {
+async function request(url, options = {}) {
   try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
+    const res = await fetch(url, options);
+    const data = await res.json();
+    if (!res.ok && data.ok === undefined) data.ok = false;
+    return data;
   } catch (e) {
-    return fallback;
+    return { ok: false, error: "Can't reach the forge server. Please try again." };
   }
 }
 
-function save(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+function passwordHeaders() {
+  return { "Content-Type": "application/json", "x-password": workspacePassword };
 }
 
-function getOrders() {
-  return load(KEY_ORDERS, []);
+async function loadProducts() {
+  const data = await request("/api/products");
+  if (Array.isArray(data)) PRODUCTS = data;
+  return PRODUCTS;
+}
+
+async function checkPassword(password) {
+  workspacePassword = password;
+  const data = await request("/api/orders/incomplete", { headers: passwordHeaders() });
+  if (!data.ok) workspacePassword = "";
+  return data.ok;
+}
+
+async function getOrders() {
+  const data = await request("/api/orders/incomplete", { headers: passwordHeaders() });
+  return data.ok ? data.orders : [];
+}
+
+async function getOrder(orderId) {
+  const data = await request(`/api/orders/${encodeURIComponent(orderId)}`);
+  return data.id ? data : null;
 }
 
 function findProduct(id) {
   return PRODUCTS.find(p => p.id === id);
 }
 
-function getInventory() {
-  const saved = load(KEY_INVENTORY, {});
-  return { ...STARTING_INVENTORY, ...saved };
+async function getInventory() {
+  const data = await request("/api/inventory", { headers: passwordHeaders() });
+  return data.ok ? data.inventory : {};
 }
 
-function saveInventory(inventory) {
-  save(KEY_INVENTORY, inventory);
-}
-
-function addResources(resources) {
-  const inventory = getInventory();
-
-  Object.keys(resources).forEach(resource => {
-    if (typeof inventory[resource] === "number") {
-      inventory[resource] += resources[resource];
-    }
+async function addResources(resources) {
+  const [material, amount] = Object.entries(resources)[0];
+  return request("/api/inventory/restock", {
+    method: "POST",
+    headers: passwordHeaders(),
+    body: JSON.stringify({ material, amount })
   });
-
-  saveInventory(inventory);
-  return inventory;
 }
 
-function placeOrder(customer, productId, qty) {
-  const name = String(customer).trim();
-  const amount = Number(qty);
-  const product = findProduct(productId);
-
-  if (!name) {
-    return { ok: false, error: "Please enter your name." };
-  }
-
-  if (!product) {
-    return { ok: false, error: "Unknown item." };
-  }
-
-  if (!Number.isInteger(amount) || amount < 1 || amount > 20) {
-    return { ok: false, error: "Quantity must be a whole number from 1 to 20." };
-  }
-
-  const inventory = getInventory();
-
-  // Checks that Gunter has enough materials for the order.
-  for (const material in product.materials) {
-    const needed = product.materials[material] * amount;
-
-    if ((inventory[material] || 0) < needed) {
-      return {
-        ok: false,
-        error: `Not enough ${material}. Please try a smaller order or wait for restocking.`
-      };
-    }
-  }
-
-  // Reserves the materials when the order is accepted.
-  for (const material in product.materials) {
-    inventory[material] -= product.materials[material] * amount;
-  }
-
-  saveInventory(inventory);
-
-  const next = load(KEY_NEXT, 1001);
-  const order = {
-    id: "GF-" + next,
-    customer: name,
-    productId,
-    qty: amount,
-    status: "Queued",
-    createdAt: Date.now()
-  };
-
-  const orders = getOrders();
-  orders.push(order);
-
-  save(KEY_ORDERS, orders);
-  save(KEY_NEXT, next + 1);
-
-  return { ok: true, order };
+async function placeOrder(customer, productId, qty) {
+  return request("/api/orders/place", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ customer, productId, qty })
+  });
 }
 
-function getOrderPosition(orderId) {
-  const activeOrders = getOrders()
-    .filter(order => order.status !== "Completed")
-    .sort((a, b) => a.createdAt - b.createdAt);
+async function setOrderStatus(orderId, status) {
+  const action = status === "In Progress" ? "start" : "complete";
+  return request(`/api/orders/${encodeURIComponent(orderId)}/${action}`, {
+    method: "POST",
+    headers: passwordHeaders()
+  });
+}
 
-  const index = activeOrders.findIndex(
-    order => order.id.toUpperCase() === orderId.trim().toUpperCase()
-  );
+async function getOrderPosition(orderId) {
+  const data = await request(`/api/orders/${encodeURIComponent(orderId)}/position`);
+  return data.ok ? data.position : null;
+}
 
-  return index === -1 ? null : index + 1;
+async function startMineRun() {
+  return request("/api/mine/runs", { method: "POST" });
+}
+
+async function digRock(runId, rock) {
+  return request(`/api/mine/runs/${runId}/dig`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rock })
+  });
 }

@@ -1,5 +1,5 @@
 const { DatabaseSync } = require("node:sqlite");
-const db = new DatabaseSync("forge.db");
+const db = new DatabaseSync(__dirname + "/forge.db");
 
 // create sheet
 db.exec(`CREATE TABLE IF NOT EXISTS orders (
@@ -37,4 +37,41 @@ function getOrderById(id) {
   return db.prepare("SELECT * FROM orders WHERE id = ?").get(id);
 }
 
-module.exports = { addOrder, getAllOrders, markCompleted ,getOrderById, getIncompleteOrders};
+function markInProgress(id) {
+  db.prepare("UPDATE orders SET status = 'In Progress' WHERE id = ?").run(id);
+}
+
+const STARTING_INVENTORY = {
+  iron: 120,
+  coal: 60,
+  leather: 20,
+  gold: 0
+};
+
+db.exec(`CREATE TABLE IF NOT EXISTS inventory (
+  material TEXT PRIMARY KEY,
+  amount INTEGER NOT NULL
+)`);
+
+for (const material in STARTING_INVENTORY) {
+  db.prepare("INSERT OR IGNORE INTO inventory (material, amount) VALUES (?, ?)")
+    .run(material, STARTING_INVENTORY[material]);
+}
+
+function getInventory() {
+  const inventory = {};
+  for (const row of db.prepare("SELECT * FROM inventory").all()) {
+    inventory[row.material] = row.amount;
+  }
+  return inventory;
+}
+
+function addResources(resources) {
+  for (const material in resources) {
+    db.prepare("UPDATE inventory SET amount = amount + ? WHERE material = ?")
+      .run(resources[material], material);
+  }
+  return getInventory();
+}
+
+module.exports = { db, addOrder, getAllOrders, markCompleted ,getOrderById, getIncompleteOrders, markInProgress, getInventory, addResources};
