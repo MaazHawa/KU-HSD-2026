@@ -16,7 +16,6 @@ function renderProducts() {
     <div class="card" data-id="${p.id}">
       <span class="icon">${p.icon}</span>
       <h3>${p.name}</h3>
-      <div>${p.desc}</div>
       <div class="price">${p.price} gold each <span class="muted">· about ${p.hours}h to forge</span></div>
       <div class="row">
         <input class="order-name" placeholder="Your name" autocomplete="off">
