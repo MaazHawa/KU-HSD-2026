@@ -47,5 +47,5 @@ db.js        SQLite database access
 ## Team Contributions
 
 - Eric: backend, sqlite db
-- Maaz
+- Maaz: developed the Shop and Mini-Game system, as well as the materials system in the Workshop and connection from the Mini-Game to the Workshop.
 - Aliakbar
