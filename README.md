@@ -1,6 +1,6 @@
 # Gunter's Forge
 
-A storefront for Gunter, the blacksmith of Mautern. Customers can order gear and check their place in line, while Gunter manages orders and inventory from a password-protected workspace. The forge also includes a mining minigame where players collect resources to help supply the blacksmith.
+A storefront for Gunter. Customers can order gear and check their place in line, while Gunter manages orders and inventory from a password-protected workspace. The forge also includes a mining minigame where players collect resources to help supply the blacksmith.
 
 Built for the 2026 KU High School Design Computer Science Competition.
 
