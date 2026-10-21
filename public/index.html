@@ -45,6 +45,21 @@
 
       <div id="workspace-content" style="display: none;">
         <h2>Workspace</h2>
+        
+        <div class="card">
+          <h3>Workshop Inventory</h3>
+          <p class="muted">Materials available for new orders.</p>
+          <div class="inventory-grid">
+            <div>⛓️ Iron: <strong id="inventory-iron">0</strong></div>
+            <div>⚫ Coal: <strong id="inventory-coal">0</strong></div>
+            <div>🪡 Leather: <strong id="inventory-leather">0</strong></div>
+            <div>💰 Gold earned: <strong id="inventory-gold">0</strong></div>
+          </div>
+
+          <p id="inventory-warning" class="low-text"></p>
+
+          <button id="restock-leather-btn">Record Leather Delivery (+10)</button>
+        </div>
         <div class="card">
           <h3>Active Orders Queue</h3>
           <button id="workspace-refresh-btn" style="min-height: 32px; padding: 4px 12px;">Refresh</button>

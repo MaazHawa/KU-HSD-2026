@@ -1,34 +1,10 @@
 
-/**
- * converts text into html-safe text
- *
- * contribution
- * developed jointly by the author and an ai language model, then reviewed and edited by the author
- *
- * args
- * text: the text to escape
- *
- * returns
- * the escaped html string
- */
 function esc(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }
 
-/**
- * displays a temporary notification
- *
- * contribution
- * developed jointly by the author and an ai language model, then reviewed and edited by the author
- *
- * args
- * message: the notification to display
- *
- * returns
- * nothing
- */
 function toast(message) {
   const el = document.getElementById("toast");
   el.textContent = message;
@@ -36,41 +12,145 @@ function toast(message) {
   setTimeout(() => el.classList.remove("show"), 2600);
 }
 
-/**
- * displays all available products in the shop
- *
- * contribution
- * developed jointly by the author and an ai language model, then reviewed and edited by the author
- *
- * args
- * none
- *
- * returns
- * nothing
- */
 function renderProducts() {
   document.getElementById("product-list").innerHTML = PRODUCTS.map(p => `
     <div class="card" data-id="${p.id}">
       <span class="icon">${p.icon}</span>
-      <h3>${p.name}</h3>
-      <div class="price">${p.price} gold each <span class="muted">· about ${p.hours}h to forge</span></div>
+      <h3>${esc(p.name)}</h3>
+      <div class="price">${p.price} gold each
+        <span class="muted">· about ${p.hours}h to forge</span>
+      </div>
+      <p class="muted">Materials per item: ${Object.entries(p.materials)
+        .filter(([material, amount]) => amount > 0)
+        .map(([material, amount]) => `${amount} ${material}`)
+        .join(", ")}</p>
       <div class="row">
         <input class="order-name" placeholder="Your name" autocomplete="off">
         <input class="order-qty" type="number" min="1" max="20" value="1">
         <button class="order-btn">Order</button>
       </div>
-    </div>`).join("");
+    </div>
+  `).join("");
 }
 
-// Handles clicks on product order buttons
-document.getElementById("product-list").addEventListener("click", e => {
-  if (!e.target.classList.contains("order-btn")) return;
+function renderInventory() {
+  const inventory = getInventory();
 
-  const btn = e.target;
-  const card = btn.closest(".card");
-  btn.disabled = true;
+  document.getElementById("inventory-iron").textContent = inventory.iron;
+  document.getElementById("inventory-coal").textContent = inventory.coal;
+  document.getElementById("inventory-leather").textContent = inventory.leather;
+  document.getElementById("inventory-gold").textContent = inventory.gold;
 
-  // Creates the order using the entered information
+  const warnings = [];
+
+  if (inventory.iron < 20) warnings.push("Iron is running low.");
+  if (inventory.coal < 10) warnings.push("Coal is running low.");
+  if (inventory.leather < 5) warnings.push("Leather is running low.");
+
+  document.getElementById("inventory-warning").textContent =
+    warnings.length ? warnings.join(" ") : "Stock levels look good.";
+}
+
+function renderWorkspaceQueue() {
+  const activeOrders = getOrders()
+    .filter(order => order.status !== "Completed")
+    .sort((a, b) => a.createdAt - b.createdAt);
+
+  const listHtml = activeOrders.map((order, index) => {
+    const product = findProduct(order.productId);
+    const productName = product ? product.name : "Unknown Item";
+    const badgeClass = order.status.replace(" ", "-");
+
+    const nextStatus = order.status === "Queued"
+      ? "In Progress"
+      : "Completed";
+
+    const buttonText = order.status === "Queued"
+      ? "Start"
+      : "Done";
+
+    return `
+      <li style="padding: 10px 0; border-bottom: 1px solid var(--bronze);">
+        <strong>#${index + 1} - ${esc(order.id)}</strong>:
+        ${esc(order.customer)}
+        <div class="muted">${order.qty}x ${esc(productName)}</div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
+          <span class="badge ${badgeClass}">${esc(order.status)}</span>
+          <button class="advance-btn" data-id="${esc(order.id)}"
+            data-next="${nextStatus}"
+            style="min-height:32px; padding:4px 10px;">
+            ${buttonText}
+          </button>
+        </div>
+      </li>
+    `;
+  }).join("");
+
+  document.getElementById("queue-list").innerHTML =
+    listHtml || "<li>No active orders currently in queue.</li>";
+}
+
+function renderOrderTracking(orderId) {
+  const resultDiv = document.getElementById("queue-result");
+  const normalizedId = orderId.trim().toUpperCase();
+
+  if (!normalizedId) {
+    resultDiv.textContent = "Please enter an Order ID.";
+    return;
+  }
+
+  const order = getOrders().find(
+    item => item.id.toUpperCase() === normalizedId
+  );
+
+  if (!order) {
+    resultDiv.textContent = "Order not found. Check the ID and try again.";
+    return;
+  }
+
+  const product = findProduct(order.productId);
+  const productName = product ? product.name : "Unknown Item";
+  const position = getOrderPosition(order.id);
+
+  if (order.status === "Completed") {
+    resultDiv.textContent =
+      `${order.id}: ${order.qty}x ${productName}. Status: Completed!`;
+  } else {
+    resultDiv.textContent =
+      `${order.id}: ${order.qty}x ${productName}. Status: ${order.status}. Queue position: #${position}.`;
+  }
+}
+
+function refreshWorkspace() {
+  renderWorkspaceQueue();
+  renderInventory();
+}
+
+function showView(viewId, button) {
+  document.querySelectorAll("nav button").forEach(item =>
+    item.classList.remove("active")
+  );
+
+  document.querySelectorAll("main > .view").forEach(view =>
+    view.classList.remove("active")
+  );
+
+  button.classList.add("active");
+  document.getElementById(viewId).classList.add("active");
+
+  if (viewId === "view-workspace") {
+    refreshWorkspace();
+  }
+}
+
+// Places an order from the Shop.
+document.getElementById("product-list").addEventListener("click", event => {
+  const button = event.target.closest(".order-btn");
+  if (!button) return;
+
+  const card = button.closest(".card");
+  button.disabled = true;
+
   const result = placeOrder(
     card.querySelector(".order-name").value,
     card.dataset.id,
@@ -80,154 +160,109 @@ document.getElementById("product-list").addEventListener("click", e => {
   if (!result.ok) {
     toast(result.error);
   } else {
-    toast("Order " + result.order.id + " placed!");
-    card.querySelector(".order-qty").value = 1;
+    toast(`Order ${result.order.id} placed! Save your order ID.`);
+    card.querySelector(".order-name").value = "";
+    card.querySelector(".order-qty").value = "1";
+    renderInventory();
   }
 
-  // Re-enables the order button after a short delay
   setTimeout(() => {
-    btn.disabled = false;
+    button.disabled = false;
   }, 600);
 });
 
-// Displays the products when the page loads
-renderProducts();
+// Handles navigation and other application buttons.
+document.body.addEventListener("click", event => {
+  const navButton = event.target.closest("nav button");
 
-/**
- * displays all unfinished orders in the workspace queue
- *
- * contribution
- * developed jointly by the author and an ai language model, then reviewed and edited by the author
- *
- * args
- * none
- *
- * returns
- * nothing
- */
-function renderWorkspaceQueue() {
-  const orders = getOrders();
+  if (navButton) {
+    const views = {
+      "nav-shop": "view-shop",
+      "nav-queue": "view-queue",
+      "nav-workspace": "view-workspace",
+      "nav-mine": "view-mine"
+    };
 
-  // Filters out completed orders and sorts by creation time
-  const activeOrders = orders.filter(o => o.status !== "Completed");
-  activeOrders.sort((a, b) => a.createdAt - b.createdAt);
-
-  // Creates the HTML for each active order
-  const listHtml = activeOrders.map((o, index) => {
-    const product = findProduct(o.productId);
-    const productName = product ? product.name : "Unknown Item";
-    const badgeClass = o.status.replace(" ", "-");
-
-    return `
-      <li style="padding: 8px 0; border-bottom: 1px solid var(--bronze);">
-        <strong>#${index + 1} - ${esc(o.id)}</strong>: ${esc(o.customer)}
-        <span class="muted">ordered ${o.qty}x ${esc(productName)}</span>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <span class="badge ${badgeClass}">${esc(o.status)}</span>
-          <button class="complete-btn" data-id="${esc(o.id)}"
-            style="min-height: 30px; padding: 4px 10px; font-size: 0.9rem;">Done</button>
-        </div>
-      </li>
-    `;
-  }).join("");
-
-  // Displays the queue or a message if it is empty
-  document.getElementById("queue-list").innerHTML =
-    listHtml || "<li>No active orders currently in queue.</li>";
-}
-
-// Handles queue searches, workspace login, navigation, and order completion
-document.body.addEventListener("click", e => {
-  if (e.target.id === "queue-btn") {
-    const orderId = document.getElementById("queue-input").value.trim();
-    const resultDiv = document.getElementById("queue-result");
-
-    // Checks that an order ID was entered
-    if (!orderId) {
-      resultDiv.textContent = "Please enter an Order ID.";
-      return;
+    if (views[navButton.id]) {
+      showView(views[navButton.id], navButton);
     }
-
-    // Finds the order's current position in the queue
-    const position = getOrderPosition(orderId);
-
-    if (position === null) {
-      resultDiv.textContent = "Order isn't found or already finished.";
-    } else {
-      resultDiv.textContent = `You are #${position} in line.`;
-    }
+    return;
   }
 
-  if (e.target.id === "workspace-unlock-btn") {
-    const passInput = document.getElementById("workspace-password");
-    const errorDiv = document.getElementById("workspace-error");
+  if (event.target.closest("#queue-btn")) {
+    renderOrderTracking(document.getElementById("queue-input").value);
+    return;
+  }
 
-    // Checks the workspace password
-    if (passInput.value === "gunter123") {
+  if (event.target.closest("#workspace-unlock-btn")) {
+    const password = document.getElementById("workspace-password");
+    const error = document.getElementById("workspace-error");
+
+    if (password.value === "gunter123") {
       document.getElementById("workspace-login").style.display = "none";
       document.getElementById("workspace-content").style.display = "block";
-      passInput.value = "";
-      errorDiv.textContent = "";
-      renderWorkspaceQueue();
+      password.value = "";
+      error.textContent = "";
+      refreshWorkspace();
+      toast("Workspace unlocked.");
     } else {
-      errorDiv.textContent = "Incorrect password.";
+      error.textContent = "Incorrect password.";
     }
+    return;
   }
 
-  // Handles navigation between all four views
-  if (e.target.tagName === "BUTTON" && e.target.closest("nav")) {
-    document.querySelectorAll("nav button").forEach(b =>
-      b.classList.remove("active")
-    );
-
-    document.querySelectorAll(".view").forEach(v =>
-      v.classList.remove("active")
-    );
-
-    e.target.classList.add("active");
-
-    if (e.target.id === "nav-queue") {
-      document.getElementById("view-queue").classList.add("active");
-    } else if (e.target.id === "nav-shop") {
-      document.getElementById("view-shop").classList.add("active");
-    } else if (e.target.id === "nav-workspace") {
-      document.getElementById("view-workspace").classList.add("active");
-    } else if (e.target.id === "nav-mine") {
-      document.getElementById("view-mine").classList.add("active");
-    }
+  if (event.target.closest("#workspace-refresh-btn")) {
+    refreshWorkspace();
+    toast("Inventory and queue refreshed.");
+    return;
   }
 
-  if (e.target.id === "workspace-refresh-btn") {
-    // Reloads the queue and displays a notification
-    renderWorkspaceQueue();
-    toast("Queue refreshed!");
+  if (event.target.closest("#restock-leather-btn")) {
+    addResources({ leather: 10 });
+    renderInventory();
+    toast("Leather delivery recorded: +10.");
+    return;
   }
 
-  if (e.target.classList.contains("complete-btn")) {
-    const orderId = e.target.dataset.id;
+  const advanceButton = event.target.closest(".advance-btn");
+
+  if (advanceButton) {
+    const orderId = advanceButton.dataset.id;
+    const nextStatus = advanceButton.dataset.next;
     const orders = getOrders();
-    const orderIndex = orders.findIndex(o => o.id === orderId);
+    const order = orders.find(item => item.id === orderId);
 
-    // Marks the selected order as completed and saves the changes
-    if (orderIndex !== -1) {
-      orders[orderIndex].status = "Completed";
+    if (order && STATUSES.includes(nextStatus)) {
+      order.status = nextStatus;
       save(KEY_ORDERS, orders);
-      renderWorkspaceQueue();
-      toast(orderId + " marked as completed!");
+      refreshWorkspace();
+      toast(`${orderId}: ${nextStatus}.`);
     }
+    return;
+  }
+
+  if (event.target.closest("#mine-reset")) {
+    resetMine();
+    return;
+  }
+
+  const rock = event.target.closest(".mine-rock");
+
+  if (rock && !mineOver) {
+    mineRock(rock.dataset.ore);
   }
 });
 
-/* Gunter's Mine minigame */
+// ------------------------------
+// Gunter's Mine minigame
+// ------------------------------
 
 let mineEnergy = 12;
 let mineResources = { iron: 0, coal: 0, gold: 0 };
 let mineScore = 0;
 let mineOver = false;
-
 let mineBest = Number(localStorage.getItem("gf_mine_best")) || 0;
 
-// Updates the resource and score displays
 function updateMineStats() {
   document.getElementById("mine-energy").textContent = mineEnergy;
   document.getElementById("mine-iron").textContent = mineResources.iron;
@@ -236,7 +271,6 @@ function updateMineStats() {
   document.getElementById("mine-best").textContent = mineBest;
 }
 
-// Creates six random rocks to mine
 function renderMine() {
   const rocks = document.getElementById("mine-rocks");
 
@@ -252,7 +286,7 @@ function renderMine() {
     return `
       <button class="mine-rock" data-ore="${rock.type}"
         ${mineOver ? "disabled" : ""}>
-        <span>${rock.icon}</span>
+        <span>${rock.icon}</span><br>
         <small>${rock.name}</small>
       </button>
     `;
@@ -261,7 +295,44 @@ function renderMine() {
   updateMineStats();
 }
 
-// Resets energy, resources, and score for a new run
+function mineRock(ore) {
+  if (mineEnergy <= 0 || mineOver) return;
+
+  mineEnergy--;
+
+  if (ore === "iron") {
+    mineResources.iron++;
+    mineScore += 10;
+  } else if (ore === "coal") {
+    mineResources.coal++;
+    mineScore += 5;
+  } else if (ore === "gold") {
+    mineResources.gold++;
+    mineScore += 25;
+  }
+
+  if (mineScore > mineBest) {
+    mineBest = mineScore;
+    localStorage.setItem("gf_mine_best", mineBest);
+  }
+
+  // Transfers mined resources into the workshop inventory.
+  if (ore === "iron") addResources({ iron: 1 });
+  if (ore === "coal") addResources({ coal: 1 });
+  if (ore === "gold") addResources({ gold: 1 });
+
+  if (mineEnergy === 0) {
+    mineOver = true;
+    document.getElementById("mine-message").textContent =
+      `Run finished! Score: ${mineScore}. Your mined resources were added to inventory.`;
+  } else {
+    document.getElementById("mine-message").textContent =
+      `You collected ${ore}! Your resources were added to the workshop.`;
+  }
+
+  renderMine();
+}
+
 function resetMine() {
   mineEnergy = 12;
   mineResources = { iron: 0, coal: 0, gold: 0 };
@@ -274,50 +345,7 @@ function resetMine() {
   renderMine();
 }
 
-// Handles mining and restarting
-document.body.addEventListener("click", e => {
-  if (e.target.closest("#mine-reset")) {
-    resetMine();
-    return;
-  }
-
-  const rock = e.target.closest(".mine-rock");
-
-  if (!rock || mineOver) return;
-
-  const ore = rock.dataset.ore;
-  mineEnergy--;
-
-  // Awards resources and points based on the selected ore
-  if (ore === "iron") {
-    mineResources.iron++;
-    mineScore += 10;
-  } else if (ore === "coal") {
-    mineResources.coal++;
-    mineScore += 5;
-  } else if (ore === "gold") {
-    mineResources.gold++;
-    mineScore += 25;
-  }
-
-  // Saves the player's best score
-  if (mineScore > mineBest) {
-    mineBest = mineScore;
-    localStorage.setItem("gf_mine_best", mineBest);
-  }
-
-  // Ends the run when the player runs out of energy
-  if (mineEnergy === 0) {
-    mineOver = true;
-    document.getElementById("mine-message").textContent =
-      `Mining finished! You scored ${mineScore} points.`;
-  } else {
-    document.getElementById("mine-message").textContent =
-      `You mined ${ore}! Keep going!`;
-  }
-
-  renderMine();
-});
-
-// Initializes the minigame
+// Initial page setup.
+renderProducts();
+renderInventory();
 renderMine();
