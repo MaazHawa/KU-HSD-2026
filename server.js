@@ -71,6 +71,34 @@ app.get("/api/orders/:id/position", (req, res) => {
   res.json({ ok: true, position: index === -1 ? null : index + 1 });
 });
 
+function getEstimatedWaitTime(orderId) {
+  const orders = db.getAllOrders().map(o => ({ ...o, id: "GF-" + (1000 + o.id) }));
+
+  const activeOrders = orders.filter(o => o.status !== "Completed");
+  activeOrders.sort((a, b) => a.createdAt - b.createdAt);
+
+  const targetIndex = activeOrders.findIndex(o => o.id === orderId);
+  if (targetIndex === -1) return null;
+
+  let totalHours = 0;
+
+  // Loop through all orders ahead of them, plus their own
+  for (let i = 0; i <= targetIndex; i++) {
+    const order = activeOrders[i];
+    const product = findProduct(order.productId);
+
+    if (product) {
+      totalHours += product.hours * order.qty;
+    }
+  }
+
+  return totalHours;
+}
+
+app.get("/api/orders/:id/wait", (req, res) => {
+  res.json({ ok: true, waitTime: getEstimatedWaitTime(req.params.id) });
+});
+
 // get all orders
 app.get("/api/orders/all", (req, res) => {
   res.json(db.getAllOrders().map(o => ({ ...o, id: "GF-" + (1000 + o.id) })));
