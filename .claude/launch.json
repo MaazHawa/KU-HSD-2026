@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "forge",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "env": { "PORT": "3000" },
+      "port": 3000
+    }
+  ]
+}

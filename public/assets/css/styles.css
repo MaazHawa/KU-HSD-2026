@@ -20,6 +20,14 @@ body {
   font-family: Georgia, "Times New Roman", serif;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: url("../img/parchment.jpg") center / cover no-repeat;
+}
+
 header {
   text-align: center;
   padding: 20px 12px 8px;
