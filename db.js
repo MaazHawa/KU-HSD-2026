@@ -22,7 +22,7 @@ function getAllOrders() {
   return db.prepare("SELECT * FROM orders ORDER BY createdAt").all();
 }
 
-// get imcomlete orders
+// get incomplete orders
 function getIncompleteOrders() {
   return db.prepare("SELECT * FROM orders WHERE status != 'Completed' ORDER BY createdAt").all();
 }

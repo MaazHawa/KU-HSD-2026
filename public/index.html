@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,11 +13,13 @@
   </header>
 
   <main>
+    <!-- Shop -->
     <section id="view-shop" class="view active">
       <h2>Products</h2>
       <div id="product-list"></div>
     </section>
 
+    <!-- Order Queue -->
     <section id="view-queue" class="view">
       <div class="card">
         <h3>Check Your Position</h3>
@@ -28,6 +31,7 @@
       </div>
     </section>
 
+    <!-- Workspace -->
     <section id="view-workspace" class="view">
       <div class="card" id="workspace-login">
         <h3>Restricted Area</h3>
@@ -41,6 +45,21 @@
 
       <div id="workspace-content" style="display: none;">
         <h2>Workspace</h2>
+        
+        <div class="card">
+          <h3>Workshop Inventory</h3>
+          <p class="muted">Materials available for new orders.</p>
+          <div class="inventory-grid">
+            <div>⛓️ Iron: <strong id="inventory-iron">0</strong></div>
+            <div>⚫ Coal: <strong id="inventory-coal">0</strong></div>
+            <div>🪡 Leather: <strong id="inventory-leather">0</strong></div>
+            <div>💰 Gold earned: <strong id="inventory-gold">0</strong></div>
+          </div>
+
+          <p id="inventory-warning" class="low-text"></p>
+
+          <button id="restock-leather-btn">Record Leather Delivery (+10)</button>
+        </div>
         <div class="card">
           <h3>Active Orders Queue</h3>
           <button id="workspace-refresh-btn" style="min-height: 32px; padding: 4px 12px;">Refresh</button>
@@ -48,19 +67,40 @@
         </div>
       </div>
     </section>
+
+    <!-- Mine Minigame -->
+    <section id="view-mine" class="view">
+      <div class="card mine-header">
+        <h2>Gunter's Mine</h2>
+        <p>Mine ores to collect resources for the forge!</p>
+
+        <div class="mine-stats">
+          <div>⛏️ Energy: <strong id="mine-energy">12</strong></div>
+          <div>⛓️ Iron: <strong id="mine-iron">0</strong></div>
+          <div>⚫ Coal: <strong id="mine-coal">0</strong></div>
+          <div>💰 Gold: <strong id="mine-gold">0</strong></div>
+        </div>
+
+        <p id="mine-message">Choose a rock to start mining.</p>
+        <div id="mine-rocks" class="mine-rocks"></div>
+
+        <h3>Best Score: <span id="mine-best">0</span></h3>
+        <button id="mine-reset">Start New Run</button>
+      </div>
+    </section>
   </main>
 
+  <!-- Navigation -->
   <nav>
     <button id="nav-shop" class="active">Shop</button>
     <button id="nav-queue">Queue</button>
     <button id="nav-workspace">Workspace</button>
+    <button id="nav-mine">Mine</button>
   </nav>
-
-  </main>
 
   <div id="toast" role="status"></div>
 
-
+  <script src="assets/js/data.js"></script>
   <script src="assets/js/ui.js"></script>
 </body>
 </html>

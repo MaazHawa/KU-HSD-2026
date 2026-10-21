@@ -228,3 +228,71 @@ nav button.active {
   opacity: .75;
   font-size: .9rem;
 }
+
+
+/* Mine minigame */
+
+.mine-header {
+  text-align: center;
+}
+
+.mine-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.mine-stats div {
+  background: #f3e6c8;
+  border: 1px solid var(--bronze);
+  border-radius: 8px;
+  padding: 12px 6px;
+}
+
+.mine-rocks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.mine-rock {
+  min-height: 90px;
+  padding: 12px;
+  background: #8a8175;
+  border: 3px solid #65594b;
+  border-radius: 10px;
+  color: white;
+  font-size: 1rem;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.mine-rock:hover:not(:disabled) {
+  background: #6f6254;
+  transform: translateY(-3px);
+}
+
+.mine-rock:disabled {
+  opacity: 0.5;
+}
+
+#mine-message {
+  font-weight: bold;
+  min-height: 24px;
+}
+
+#mine-reset {
+  margin-top: 8px;
+}
+
+@media (max-width: 380px) {
+  .mine-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .mine-rocks {
+    grid-template-columns: 1fr;
+  }
+}
+
