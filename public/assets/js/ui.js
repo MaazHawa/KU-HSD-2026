@@ -176,6 +176,8 @@ document.body.addEventListener("click", e => {
       document.getElementById("view-shop").classList.add("active");
     } else if (e.target.id === "nav-workspace") {
       document.getElementById("view-workspace").classList.add("active");
+    } else if (e.target.id === "nav-game") {
+      document.getElementById("view-game").classList.add("active");
     }
   }
 
