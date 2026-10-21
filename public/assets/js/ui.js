@@ -91,7 +91,8 @@ document.body.addEventListener("click", async e => {
     }
 
     const posres = await fetch(`/api/orders/${orderId}/position`);
-    const position = await posres.json().position
+    const podata = await posres.json();
+    const position = podata.position;
     
     if (position == -1) {
       resultDiv.textContent = "Order isn't found or already finished.";
