@@ -17,9 +17,13 @@ const PRODUCTS = [
   { id: "pot", name: "Cooking Pot", icon: "🍲", price: 800, hours: 8, desc: "add desc", materials: { iron: 4, coal: 2, leather: 0 } }
 ];
 
+//start server
+
 app.listen(PORT, () => {
   console.log(`Gunter's Forge running at http://localhost:${PORT}`);
 });
+
+// get products
 
 app.get("/api/products/" , (req, res) => {
   res.json(PRODUCTS)
@@ -71,6 +75,8 @@ app.get("/api/orders/:id/position", (req, res) => {
   res.json({ ok: true, position: index === -1 ? null : index + 1 });
 });
 
+
+// estimated time
 function getEstimatedWaitTime(orderId) {
   const orders = db.getAllOrders().map(o => ({ ...o, id: "GF-" + (1000 + o.id) }));
 
@@ -95,6 +101,7 @@ function getEstimatedWaitTime(orderId) {
   return totalHours;
 }
 
+// get est time
 app.get("/api/orders/:id/wait", (req, res) => {
   res.json({ ok: true, waitTime: getEstimatedWaitTime(req.params.id) });
 });
@@ -124,6 +131,8 @@ app.post("/api/orders/:id/complete", (req, res) => {
   res.json({ ok: true });
 });
 
+// Queued to start
+
 app.post("/api/orders/:id/start", (req, res) => {
   if (req.get("x-password") !== "gunter123") return res.status(401).json({ ok: false, error: "Incorrect password." });
   const orderId = req.params.id;
@@ -135,11 +144,13 @@ app.post("/api/orders/:id/start", (req, res) => {
   res.json({ ok: true });
 });
 
+// get inv
 app.get("/api/inventory", (req, res) => {
   if (req.get("x-password") !== "gunter123") return res.status(401).json({ ok: false, error: "Incorrect password." });
   res.json({ ok: true, inventory: db.getInventory() });
 });
 
+// add stock
 app.post("/api/inventory/restock", (req, res) => {
   if (req.get("x-password") !== "gunter123") return res.status(401).json({ ok: false, error: "Incorrect password." });
   const { material, amount } = req.body || {};
