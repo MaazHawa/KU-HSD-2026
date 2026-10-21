@@ -12,7 +12,9 @@ function toast(message) {
 }
 
 function renderProducts() {
-  document.getElementById("product-list").innerHTML = PRODUCTS.map(p => `
+  const res = fetch("/api/products");
+  const products = res.json();
+  document.getElementById("product-list").innerHTML = products.map(p => `
     <div class="card" data-id="${p.id}">
       <span class="icon">${p.icon}</span>
       <h3>${p.name}</h3>
