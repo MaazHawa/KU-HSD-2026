@@ -11,6 +11,12 @@ function toast(message) {
   setTimeout(() => el.classList.remove("show"), 2600);
 }
 
+/*
+Renders the order page
+Contribution:
+This function was developed through joint contributions from the author and an AI language model. The final implementation was reviewed and edited by the author.
+Creates the page
+*/
 function renderProducts() {
   document.getElementById("product-list").innerHTML = PRODUCTS.map(p => `
     <div class="card" data-id="${p.id}">
@@ -32,6 +38,12 @@ function renderProducts() {
   `).join("");
 }
 
+/*
+Renders the inventory in the workspace
+Contribution:
+This function was developed through joint contributions from the author and an AI language model. The final implementation was reviewed and edited by the author.
+Creates the page
+*/
 async function renderInventory() {
   const inventory = await getInventory();
 
@@ -50,6 +62,12 @@ async function renderInventory() {
     warnings.length ? warnings.join(" ") : "Stock levels look good.";
 }
 
+/*
+Renders the order tracking/queue page
+Contribution:
+This function was developed through joint contributions from the author and an AI language model. The final implementation was reviewed and edited by the author.
+Creates the page
+*/
 async function renderWorkspaceQueue() {
   const activeOrders = (await getOrders())
     .filter(order => order.status !== "Completed")
@@ -89,6 +107,14 @@ async function renderWorkspaceQueue() {
     listHtml || "<li>No active orders currently in queue.</li>";
 }
 
+
+/*
+Renders the order tracking after orderID is input
+Contribution:
+This function was developed through joint contributions from the author and an AI language model. The final implementation was reviewed and edited by the author.
+Args: orderID: The input value to process.
+Returns: The page.
+*/
 async function renderOrderTracking(orderId) {
   const resultDiv = document.getElementById("queue-result");
   const normalizedId = orderId.trim().toUpperCase();
@@ -126,11 +152,13 @@ async function renderOrderTracking(orderId) {
   }
 }
 
+//refreshes workspace queue
 async function refreshWorkspace() {
   await renderWorkspaceQueue();
   await renderInventory();
 }
 
+//chooses which page to open
 function showView(viewId, button) {
   document.querySelectorAll("nav button").forEach(item =>
     item.classList.remove("active")
@@ -216,12 +244,14 @@ document.body.addEventListener("click", async event => {
     return;
   }
 
+  //refreshes the workspace
   if (event.target.closest("#workspace-refresh-btn")) {
     await refreshWorkspace();
     toast("Inventory and queue refreshed.");
     return;
   }
 
+  //restocks leather stores
   if (event.target.closest("#restock-leather-btn")) {
     const result = await addResources({ leather: 10 });
     if (!result.ok) {

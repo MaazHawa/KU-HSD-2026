@@ -2,6 +2,12 @@ let PRODUCTS = [];
 
 const STATUSES = ["Queued", "In Progress", "Completed"];
 
+const LOW_STOCK_LIMITS = {
+  iron: 20,
+  coal: 10,
+  leather: 5
+};
+
 let workspacePassword = "";
 
 async function request(url, options = {}) {
@@ -43,8 +49,12 @@ async function getOrder(orderId) {
 }
 
 function findProduct(id) {
-  return PRODUCTS.find(p => p.id === id);
+  return PRODUCTS.find(product => product.id === id);
 }
+
+// ------------------------------
+// INVENTORY MANAGEMENT
+// ------------------------------
 
 async function getInventory() {
   const data = await request("/api/inventory", { headers: passwordHeaders() });

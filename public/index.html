@@ -4,101 +4,309 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gunter's Forge</title>
+  <meta name="theme-color" content="#171713">
+  <meta name="description" content="Order handcrafted medieval equipment from Gunter's Forge.">
+  <title>Gunter's Forge | Medieval Blacksmith</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-  <header>
-    <h1>Gunter's Forge</h1>
+  <header class="site-header">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">⚒</div>
+      <div>
+        <h1>Gunter's Forge</h1>
+        <p class="brand-subtitle">THE KINGDOM'S TRUSTED BLACKSMITH</p>
+      </div>
+    </div>
+
+    <div class="header-status">
+      <span class="status-dot"></span>
+      <span>Forge operating</span>
+    </div>
   </header>
 
   <main>
-    <!-- Shop -->
+    <!-- SHOP -->
     <section id="view-shop" class="view active">
-      <h2>Products</h2>
-      <div id="product-list"></div>
-    </section>
-
-    <!-- Order Queue -->
-    <section id="view-queue" class="view">
-      <div class="card">
-        <h3>Check Your Position</h3>
-        <div class="row">
-          <input id="queue-input" placeholder="Order ID (e.g., GF-1001)" autocomplete="off">
-          <button id="queue-btn">Check</button>
+      <div class="hero">
+        <div class="hero-content">
+          
+          </div>
         </div>
-        <div id="queue-result" style="margin-top: 15px; font-weight: bold;"></div>
+        <div class="hero-emblem" aria-hidden="true">
+          <div class="emblem-ring">
+            <span>⚔</span>
+            <small>EST. IN THE KINGDOM</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">THE CATALOGUE</p>
+          <h2>Available Goods</h2>
+          <p class="muted">Choose your equipment and place an order below.</p>
+        </div>
+        <div class="section-note">4 handcrafted goods</div>
+      </div>
+
+      <div id="product-list" class="product-grid">
+        <div class="loading-card">Loading the forge catalogue...</div>
+      </div>
+
+      <div class="info-banner">
+        <span class="info-icon">✦</span>
+        <div>
+          <strong>Every order has a place in the queue.</strong>
+          <p>After ordering, save your order ID to track its progress.</p>
+        </div>
+        <button class="button button-secondary" onclick="document.getElementById('nav-queue').click()">
+          Track an order
+        </button>
       </div>
     </section>
 
-    <!-- Workspace -->
-    <section id="view-workspace" class="view">
-      <div class="card" id="workspace-login">
-        <h3>Restricted Area</h3>
-        <p>Enter password to access the workspace.</p>
-        <div class="row">
-          <input type="password" id="workspace-password" placeholder="Password" autocomplete="off">
-          <button id="workspace-unlock-btn">Unlock</button>
+    <!-- CUSTOMER ORDER TRACKING -->
+    <section id="view-queue" class="view">
+      <div class="page-intro">
+        <p class="eyebrow">CUSTOMER SERVICES</p>
+        <h2>Order Tracking</h2>
+        <p>Find your place in the forge's queue and check your order's progress.</p>
+      </div>
+
+      <div class="tracking-layout">
+        <div class="card tracking-card">
+          <div class="card-icon">⌕</div>
+          <h3>Find Your Order</h3>
+          <p class="muted">Enter the order ID from your confirmation.</p>
+
+          <label for="queue-input">Order ID</label>
+          <div class="row tracking-form">
+            <input id="queue-input" placeholder="e.g. GF-1001"
+              autocomplete="off" aria-label="Order ID">
+            <button id="queue-btn" class="button button-primary">Track order</button>
+          </div>
+
+          <div id="queue-result" class="queue-result" aria-live="polite"></div>
         </div>
-        <div id="workspace-error" class="low-text" style="margin-top: 10px;"></div>
+
+        <aside class="card tracking-help">
+          <p class="eyebrow">HOW IT WORKS</p>
+          <div class="step">
+            <span class="step-number">01</span>
+            <div>
+              <strong>Order received</strong>
+              <p>Your request enters the forge queue.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-number">02</span>
+            <div>
+              <strong>Work begins</strong>
+              <p>Gunter starts crafting your goods.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-number">03</span>
+            <div>
+              <strong>Order completed</strong>
+              <p>Your equipment is ready.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- WORKSPACE -->
+    <section id="view-workspace" class="view">
+      <div class="page-intro">
+        <p class="eyebrow">GUNTER'S PRIVATE WORKSHOP</p>
+        <h2>Workshop Control</h2>
+        <p>Manage orders, monitor materials, and keep the forge running.</p>
+      </div>
+
+      <div class="card login-card" id="workspace-login">
+        <div class="login-symbol">⚒</div>
+        <p class="eyebrow">AUTHORIZED PERSONNEL ONLY</p>
+        <h3>Enter the Workshop</h3>
+        <p class="muted">Enter the workshop password to manage active orders and inventory.</p>
+
+        <label for="workspace-password">Workshop password</label>
+        <div class="row">
+          <input type="password" id="workspace-password"
+            placeholder="Enter password" autocomplete="current-password">
+          <button id="workspace-unlock-btn" class="button button-primary">Unlock</button>
+        </div>
+        <div id="workspace-error" class="low-text" role="alert"></div>
       </div>
 
       <div id="workspace-content" style="display: none;">
-        <h2>Workspace</h2>
-        
-        <div class="card">
-          <h3>Workshop Inventory</h3>
-          <p class="muted">Materials available for new orders.</p>
-          <div class="inventory-grid">
-            <div>⛓️ Iron: <strong id="inventory-iron">0</strong></div>
-            <div>⚫ Coal: <strong id="inventory-coal">0</strong></div>
-            <div>🪡 Leather: <strong id="inventory-leather">0</strong></div>
-            <div>💰 Gold earned: <strong id="inventory-gold">0</strong></div>
+        <div class="workspace-toolbar">
+          <div>
+            <span class="status-pill"><span class="status-dot"></span> Workshop access granted</span>
+            <p class="muted">Review the current state of the forge.</p>
           </div>
-
-          <p id="inventory-warning" class="low-text"></p>
-
-          <button id="restock-leather-btn">Record Leather Delivery (+10)</button>
+          <button id="workspace-refresh-btn" class="button button-secondary">↻ Refresh data</button>
         </div>
-        <div class="card">
-          <h3>Active Orders Queue</h3>
-          <button id="workspace-refresh-btn" style="min-height: 32px; padding: 4px 12px;">Refresh</button>
-          <ul id="queue-list" style="list-style: none; padding: 0; margin: 0;"></ul>
+
+        <div class="dashboard-grid">
+          <article class="metric-card">
+            <span class="metric-label">IRON STOCK</span>
+            <div class="metric-value"><span id="inventory-iron">0</span><small>units</small></div>
+            <span class="metric-icon">⛓</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">COAL STOCK</span>
+            <div class="metric-value"><span id="inventory-coal">0</span><small>units</small></div>
+            <span class="metric-icon">●</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">LEATHER STOCK</span>
+            <div class="metric-value"><span id="inventory-leather">0</span><small>units</small></div>
+            <span class="metric-icon">▤</span>
+          </article>
+          <article class="metric-card metric-gold">
+            <span class="metric-label">GOLD IN TREASURY</span>
+            <div class="metric-value"><span id="inventory-gold">0</span><small>gold</small></div>
+            <span class="metric-icon">✦</span>
+          </article>
+        </div>
+
+        <div class="workspace-grid">
+          <section class="card">
+            <div class="card-heading">
+              <div>
+                <p class="eyebrow">RESOURCE CONTROL</p>
+                <h3>Inventory Management</h3>
+              </div>
+              <span class="heading-symbol">▤</span>
+            </div>
+            <p class="muted">Materials are reserved when a customer places an order.</p>
+            <div id="inventory-warning" class="inventory-warning" aria-live="polite"></div>
+
+            <div class="restock-panel">
+              <h4>Record a delivery</h4>
+              <p class="muted">Add newly delivered material to your available stock.</p>
+              <div class="restock-fields">
+                <div>
+                  <label for="restock-material">Material</label>
+                  <select id="restock-material">
+                    <option value="iron">Iron</option>
+                    <option value="coal">Coal</option>
+                    <option value="leather">Leather</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="restock-amount">Quantity</label>
+                  <input id="restock-amount" type="number" min="1" max="1000" value="10">
+                </div>
+              </div>
+              <button id="restock-btn" class="button button-primary button-full">Record restock</button>
+              <button id="restock-leather-btn" class="button button-secondary button-full legacy-restock">
+                Record Leather Delivery (+10)
+              </button>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-heading">
+              <div>
+                <p class="eyebrow">PRODUCTION</p>
+                <h3>Active Orders</h3>
+              </div>
+              <span class="heading-symbol">⚒</span>
+            </div>
+            <p class="muted">Advance each order as work progresses.</p>
+            <ul id="queue-list" class="queue-list">
+              <li class="empty-state">Unlock the workshop to load active orders.</li>
+            </ul>
+          </section>
         </div>
       </div>
     </section>
 
-    <!-- Mine Minigame -->
+    <!-- MINE -->
     <section id="view-mine" class="view">
-      <div class="card mine-header">
+      <div class="page-intro">
+        <p class="eyebrow">GATHER YOUR RESOURCES</p>
         <h2>Gunter's Mine</h2>
-        <p>Mine ores to collect resources for the forge!</p>
+        <p>Choose a rock, collect valuable ore, and send your findings to the workshop.</p>
+      </div>
 
-        <div class="mine-stats">
-          <div>⛏️ Energy: <strong id="mine-energy">12</strong></div>
-          <div>⛓️ Iron: <strong id="mine-iron">0</strong></div>
-          <div>⚫ Coal: <strong id="mine-coal">0</strong></div>
-          <div>💰 Gold: <strong id="mine-gold">0</strong></div>
-        </div>
+      <div class="mine-layout">
+        <section class="card mine-main">
+          <div class="mine-topline">
+            <div>
+              <p class="eyebrow">EXPEDITION IN PROGRESS</p>
+              <h3>Choose Your Rock</h3>
+            </div>
+            <div class="energy-badge">⚡ <span id="mine-energy">12</span> energy</div>
+          </div>
 
-        <p id="mine-message">Choose a rock to start mining.</p>
-        <div id="mine-rocks" class="mine-rocks"></div>
+          <p id="mine-message" class="mine-message" aria-live="polite">
+            Choose a rock to start mining.
+          </p>
+          <div id="mine-rocks" class="mine-rocks">
+            <div class="loading-card">Preparing the mine...</div>
+          </div>
 
-        <h3>Best Score: <span id="mine-best">0</span></h3>
-        <button id="mine-reset">Start New Run</button>
+          <div class="mine-footer">
+            <p class="muted">Each dig uses one energy point. Your collected resources are added to the workshop inventory.</p>
+            <button id="mine-reset" class="button button-secondary">↻ Start new run</button>
+          </div>
+        </section>
+
+        <aside class="mine-sidebar">
+          <div class="card">
+            <p class="eyebrow">THIS RUN</p>
+            <h3>Resources Collected</h3>
+            <div class="resource-line">
+              <span>⛓ Iron</span>
+              <strong id="mine-iron">0</strong>
+            </div>
+            <div class="resource-line">
+              <span>● Coal</span>
+              <strong id="mine-coal">0</strong>
+            </div>
+            <div class="resource-line">
+              <span>✦ Gold</span>
+              <strong id="mine-gold">0</strong>
+            </div>
+          </div>
+
+          <div class="card best-score-card">
+            <p class="eyebrow">PERSONAL RECORD</p>
+            <div class="best-score-icon">✧</div>
+            <h3>Best Mining Score</h3>
+            <div class="best-score-number" id="mine-best">0</div>
+            <p class="muted">Earn points by finding valuable ore.</p>
+          </div>
+        </aside>
       </div>
     </section>
   </main>
 
-  <!-- Navigation -->
-  <nav>
-    <button id="nav-shop" class="active">Shop</button>
-    <button id="nav-queue">Queue</button>
-    <button id="nav-workspace">Workspace</button>
-    <button id="nav-mine">Mine</button>
+  <!-- MOBILE-FRIENDLY NAVIGATION -->
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button id="nav-shop" class="active">
+      <span class="nav-icon">⌂</span>
+      <span>Shop</span>
+    </button>
+    <button id="nav-queue">
+      <span class="nav-icon">⌕</span>
+      <span>Track</span>
+    </button>
+    <button id="nav-workspace">
+      <span class="nav-icon">⚒</span>
+      <span>Workshop</span>
+    </button>
+    <button id="nav-mine">
+      <span class="nav-icon">⛏</span>
+      <span>Mine</span>
+    </button>
   </nav>
 
-  <div id="toast" role="status"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
 
   <script src="assets/js/data.js"></script>
   <script src="assets/js/ui.js"></script>
