@@ -46,6 +46,6 @@ db.js        SQLite database access
 
 ## Team Contributions
 
-- Eric
+- Eric: backend, sqlite db
 - Maaz
 - Aliakbar
