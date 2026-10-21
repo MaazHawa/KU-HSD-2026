@@ -11,8 +11,8 @@ function toast(message) {
   setTimeout(() => el.classList.remove("show"), 2600);
 }
 
-function renderProducts() {
-  const res = fetch("/api/products");
+async function renderProducts() {
+  const res = await fetch("/api/products");
   const products = res.json();
   document.getElementById("product-list").innerHTML = products.map(p => `
     <div class="card" data-id="${p.id}">
@@ -28,16 +28,24 @@ function renderProducts() {
     </div>`).join("");
 }
 
-document.getElementById("product-list").addEventListener("click", e => {
+document.getElementById("product-list").addEventListener("click", async e => {
   if (!e.target.classList.contains("order-btn")) return;
   const btn = e.target;
   const card = btn.closest(".card");
   btn.disabled = true;
-  const result = placeOrder(card.querySelector(".order-name").value, card.dataset.id, card.querySelector(".order-qty").value);
-  if (!result.ok) {
-    toast(result.error);
+  const res = await fetch("/api/orders/place",{
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ 
+      customer: card.querySelector(".order-name").value, 
+      productId: card.dataset.id, 
+      qty: card.querySelector(".order-qty").value })
+  }); 
+  const data = await res.json();
+  if (!data.ok) {
+    toast(data.error);
   } else {
-    toast("Order " + result.order.id + " placed!");
+    toast("Order " + data.order.id + " placed!");
     card.querySelector(".order-qty").value = 1;
   }
   setTimeout(() => { btn.disabled = false; }, 600);

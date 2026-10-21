@@ -26,7 +26,7 @@ app.get("/api/products/" , (req, res) => {
 });
 
 // place order
-app.post("/api/orders", (req, res) => {
+app.post("/api/orders/place", (req, res) => {
   const { customer, productId, qty } = req.body;
   const name = String(customer ?? "").trim();
   const amount = Number(qty);
