@@ -34,6 +34,7 @@ Open http://localhost in a browser. Set `PORT` to use a different port, e.g. `PO
 ```
 public/      Frontend (HTML, CSS, JavaScript)
 server.js    Express backend and API routes
+mine.js      Mine minigame backend
 db.js        SQLite database access
 ```
 
