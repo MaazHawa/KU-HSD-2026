@@ -100,7 +100,11 @@ function renderWorkspaceQueue() {
       <li style="padding: 8px 0; border-bottom: 1px solid var(--bronze);">
         <strong>#${index + 1} - ${o.id}</strong>: ${o.customer} 
         <span class="muted">ordered ${o.qty}x ${productName}</span>
-        <span class="badge ${badgeClass}" style="float: right;">${o.status}</span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span class="badge ${badgeClass}">${o.status}</span>
+          <button class="complete-btn" data-id="${o.id}" style="min-height: 30px; padding: 4px 10px; font-size: 0.9rem;">Done</button>
+        </div>
       </li>
     `;
   }).join("");
@@ -159,6 +163,18 @@ document.body.addEventListener("click", e => {
   if (e.target.id === "workspace-refresh-btn") {
     renderWorkspaceQueue();
     toast("Queue refreshed!");
+  }
+
+  if (e.target.classList.contains("complete-btn")) {
+    const orderId = e.target.dataset.id;
+    const orders = getOrders();
+    const orderIndex = orders.findIndex(o => o.id === orderId);
+    if (orderIndex !== -1) {
+      orders[orderIndex].status = "Completed";
+            save(KEY_ORDERS, orders);
+            renderWorkspaceQueue();
+      toast(orderId + " marked as completed!");
+    }
   }
 });
 
