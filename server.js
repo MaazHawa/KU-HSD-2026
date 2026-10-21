@@ -49,6 +49,14 @@ app.get("/api/orders/:id/position", (req, res) => {
   res.json({ ok: true, position: index === -1 ? null : index + 1 });
 });
 
+// get orderby id
+app.get("/api/orders/:id", (req, res) => {
+  const id = Number(req.params.id.replace("GF-", "")) - 1000;
+  const order = db.getOrderById(id);
+  if (!order) return res.status(404).json({ ok: false, error: "Order not found." });
+  res.json({ ...order, id: "GF-" + (1000 + order.id) });
+});
+
 // get all orders
 app.get("/api/orders/all", (req, res) => {
   res.json(db.getAllOrders().map(o => ({ ...o, id: "GF-" + (1000 + o.id) })));

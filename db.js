@@ -32,6 +32,7 @@ function markCompleted(id) {
   db.prepare("UPDATE orders SET status = 'Completed' WHERE id = ?").run(id);
 }
 
+// by id
 function getOrderById(id) {
   return db.prepare("SELECT * FROM orders WHERE id = ?").get(id);
 }

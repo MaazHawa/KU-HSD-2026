@@ -13,7 +13,7 @@ function toast(message) {
 
 async function renderProducts() {
   const res = await fetch("/api/products");
-  const products = res.json();
+  const products = await res.json();
   document.getElementById("product-list").innerHTML = products.map(p => `
     <div class="card" data-id="${p.id}">
       <span class="icon">${p.icon}</span>
@@ -78,9 +78,11 @@ function renderWorkspaceQueue() {
   document.getElementById("queue-list").innerHTML = listHtml || "<li>No active orders currently in queue.</li>";
 }
 
-document.body.addEventListener("click", e => {
+document.body.addEventListener("click", async e => {
   if (e.target.id === "queue-btn") {
     const orderId = document.getElementById("queue-input").value.trim();
+    const res = await fetch(`/api/orders/${orderId}`);
+    const data = await res.json();
     const resultDiv = document.getElementById("queue-result");
     
     if (!orderId) {
@@ -88,9 +90,10 @@ document.body.addEventListener("click", e => {
       return;
     }
 
-    const position = getOrderPosition(orderId);
+    const posres = await fetch(`/api/orders/${orderId}/position`);
+    const position = await posres.json().position
     
-    if (position === null) {
+    if (position == -1) {
       resultDiv.textContent = "Order isn't found or already finished.";
     } else {
       resultDiv.textContent = `You are #${position} in line.`;
