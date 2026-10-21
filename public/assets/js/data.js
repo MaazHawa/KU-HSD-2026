@@ -92,3 +92,8 @@ async function digRock(runId, rock) {
     body: JSON.stringify({ rock })
   });
 }
+
+async function getEstimatedWaitTime(orderId) {
+  const data = await request(`/api/orders/${encodeURIComponent(orderId)}/wait`);
+  return data.ok ? data.waitTime : null;
+}
